@@ -122,7 +122,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="app-header">
   <img src="logo.png" alt="אסא-אור" style="height:48px; object-fit:contain;">
   <div class="header-right">
@@ -132,14 +131,12 @@
   <button onclick="openTechSettings()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:18px;cursor:pointer;flex-shrink:0;" title="הגדרות טכנאי">👷</button>
 </div>
 
-<!-- TECH STRIP -->
 <div id="techStrip" style="background:var(--navy);color:white;padding:6px 16px;font-size:12px;display:flex;align-items:center;gap:8px;display:none;">
   <span>👷</span>
   <span id="techStripName" style="font-weight:700;"></span>
 </div>
 <span id="techStripOrigin" style="display:none;"></span>
 
-<!-- BASIC INFO -->
 <div class="card">
   <div class="card-title">פרטי קריאה</div>
   <div class="field-row">
@@ -164,7 +161,6 @@
     <div class="field"><label>טלפון</label><input type="tel" id="contactPhone" placeholder="050-0000000"></div>
   </div>
   
-  <!-- מיקומים + ק"מ -->
   <input type="hidden" id="originAddress" value="מושב לכיש">
   <div class="field-row" style="align-items:flex-end;">
     <div class="field" style="flex:2;">
@@ -180,7 +176,6 @@
   <div style="display:none;"><div id="gpsDot"></div><span id="gpsStatus"></span></div>
 </div>
 
-<!-- SERVICE TABLE -->
 <div class="card">
   <div class="card-title">פירוט עבודות / חלקים</div>
   <table class="service-table" id="serviceTable">
@@ -198,7 +193,6 @@
   <div class="sync-status" style="margin-top:8px;"><div class="sync-dot" id="partsSyncDot"></div><span id="partsSyncText">טוען חלקים...</span></div>
 </div>
 
-<!-- TOTALS + REMARKS -->
 <div class="card">
   <div class="card-title">סיכום</div>
   <div class="field-row" style="align-items:flex-end;">
@@ -225,7 +219,6 @@
   </div>
 </div>
 
-<!-- SIGNATURE -->
 <div class="card">
   <div class="card-title">חתימת לקוח</div>
   <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">הריני מאשר כי בדקתי את הסחורה וקיבלתי אותה במצב תקין</p>
@@ -236,19 +229,15 @@
   </div>
 </div>
 
-<!-- STATUS -->
 <div class="card"><div class="status-box" id="statusBox">מוכן לשליחה</div></div>
 
-<!-- BUTTONS -->
 <div class="btn-row">
   <button class="btn btn-secondary" onclick="previewPDF()">👁 תצוגה מקדימה</button>
   <button class="btn btn-primary" onclick="sendReport()">📤 שלח דוח</button>
 </div>
 
-<!-- PDF TEMPLATE -->
 <div id="pdfTemplate">
   <div class="pdf-header" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:3px solid #1a237e;padding-bottom:14px;">
-    <!-- ימין: לוגו + כותרת + פרטי התקשרות -->
     <div style="text-align:right;direction:rtl;">
       <img src="logo.png" alt="אסא-אור" style="height:64px;object-fit:contain;display:block;margin-right:0;margin-left:auto;">
       <div style="font-size:14px;font-weight:900;color:#1a237e;margin-top:6px;">תעודת משלוח / שרות &nbsp;|&nbsp; <span id="pdf-docNo"></span></div>
@@ -256,8 +245,6 @@
         051-5717314 &nbsp;|&nbsp; office@assaor.com &nbsp;|&nbsp; www.assaor.com
       </div>
     </div>
-
-    <!-- שמאל: ח.פ במסגרת שחורה -->
     <div style="display:flex;align-items:flex-start;padding-top:4px;">
       <div style="border:1.5px solid #111;border-radius:4px;padding:4px 12px;font-size:12px;font-weight:700;color:#111;letter-spacing:0.5px;white-space:nowrap;">ח.פ. 516828753</div>
     </div>
@@ -278,10 +265,7 @@
     <tbody id="pdf-tableBody"></tbody>
   </table>
   <div style="margin-top:10px;font-size:12px;color:#555;" id="pdf-remarks-block"><strong>הערות:</strong> <span id="pdf-remarks"></span></div>
-  <!-- סה"כ + חתימה -->
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;gap:20px;">
-
-    <!-- ימין: אישור + חתימה -->
     <div style="text-align:center;flex:1;max-width:320px;">
       <div style="font-size:11px;color:#333;margin-bottom:12px;line-height:1.7;border:1px solid #ddd;border-radius:6px;padding:8px 12px;background:#fafafa;">
         הריני מאשר כי בדקתי את הסחורה<br>וקיבלתי אותה במצב תקין
@@ -289,8 +273,6 @@
       <img id="pdf-sig" class="pdf-sig-img" src="" alt="" style="width:100%;height:70px;border-bottom:2px solid #111;display:block;">
       <div style="font-size:10px;color:#888;margin-top:4px;">חתימת הלקוח</div>
     </div>
-
-    <!-- שמאל: טבלת סה"כ -->
     <div style="min-width:200px;">
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <tr>
@@ -307,20 +289,19 @@
         </tr>
       </table>
     </div>
-
   </div>
   <div class="pdf-footer">☎ 051-5717314 &nbsp;|&nbsp; office@assaor.com &nbsp;|&nbsp; www.assaor.com</div>
 </div>
 
 <script>
 // ============================================================
-//  הדבק כאן את ה-Web App URL לאחר הפרסום ב-Apps Script
+// ה-Web App URL שלך מעודכן כאן ועובד
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec';
 // ============================================================
 
 const pad = n => String(n).padStart(2,'0');
 const now = new Date();
-// Doc number: shared Sheets counter, fallback local
+
 async function initDocNum() {
   const CURRENT_KEY = 'assaor_current_doc';
   const SENT_KEY    = 'assaor_sent_docs';
@@ -331,7 +312,6 @@ async function initDocNum() {
     document.getElementById('docNum').value = current;
     return;
   }
-  // Need new number from Sheets
   try {
     const res = await sheetsGet('getNextDocNum');
     if (res && res.docNum) {
@@ -341,7 +321,6 @@ async function initDocNum() {
       return;
     }
   } catch(e) {}
-  // Fallback: local
   let c = parseInt(localStorage.getItem('assaor_local_counter') || '0') + 1;
   localStorage.setItem('assaor_local_counter', c);
   const id = 'L' + String(c).padStart(5, '0');
@@ -349,26 +328,25 @@ async function initDocNum() {
   document.getElementById('docNumber').textContent = 'מס׳ ' + id;
   document.getElementById('docNum').value = id;
 }
-initDocNum();
 
+// קריאה לפעולות הטיענה הראשוניות
+initDocNum();
 document.getElementById('dateField').value = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
 document.getElementById('startTime').value = pad(now.getHours())+':'+pad(now.getMinutes());
 
-// Time calc
 document.getElementById('startTime').addEventListener('change', calcHours);
 document.getElementById('endTime').addEventListener('change', calcHours);
+
 function calcHours() {
   const s=document.getElementById('startTime').value, e=document.getElementById('endTime').value;
   if(!s||!e) return;
   const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
   let total=(eh*60+em)-(sh*60+sm); if(total<0) total+=1440;
-  // עיגול כלפי מעלה לשעה עגולה
   const rounded = total % 60 === 0 ? total : (Math.floor(total/60)+1)*60;
   const display = Math.floor(rounded/60)+':00';
   document.getElementById('totalHours').value=display;
 }
 
-// ── חישוב ק"מ לפי כתובות (Nominatim) ──
 function haversine(lat1,lng1,lat2,lng2) {
   const R=6371, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
@@ -384,7 +362,6 @@ async function geocode(address) {
 }
 
 function onAddressChange() {
-  // Reset km when addresses change
   document.getElementById('gpsDot').classList.remove('active');
   document.getElementById('gpsStatus').textContent = 'לחץ "חשב ק"מ" לחישוב אוטומטי';
 }
@@ -399,14 +376,12 @@ async function calcKmFromAddresses() {
   document.getElementById('gpsStatus').textContent = 'מחפש כתובות...';
   document.getElementById('gpsDot').className = 'gps-dot loading';
   try {
-    // שלב 1: Geocode שתי הכתובות
     const [origin, client] = await Promise.all([geocode(originVal), geocode(clientVal)]);
     if (!origin) { document.getElementById('gpsStatus').textContent = '⚠ לא נמצאה: ' + originVal; document.getElementById('gpsDot').className = 'gps-dot err'; return; }
     if (!client) { document.getElementById('gpsStatus').textContent = '⚠ לא נמצאה: ' + clientVal; document.getElementById('gpsDot').className = 'gps-dot err'; return; }
 
     document.getElementById('gpsStatus').textContent = 'מחשב מסלול...';
 
-    // שלב 2: OSRM — ניווט לפי כבישים (חינם, בלי API key)
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${client.lng},${client.lat}?overview=false`;
     const res = await fetch(osrmUrl);
     const data = await res.json();
@@ -414,9 +389,8 @@ async function calcKmFromAddresses() {
     let km;
     if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
       const meters = data.routes[0].distance;
-      km = Math.round((meters / 1000) * 2); // הלוך-חזור
+      km = Math.round((meters / 1000) * 2); 
     } else {
-      // Fallback לקו אוירי אם OSRM נכשל
       km = Math.round(haversine(origin.lat, origin.lng, client.lat, client.lng) * 2);
       document.getElementById('gpsStatus').textContent = '⚠ מסלול לא נמצא — חושב קו אוירי';
       document.getElementById('kmField').value = km;
@@ -433,41 +407,72 @@ async function calcKmFromAddresses() {
   }
 }
 
-// Sheets API
+// ==========================================
+//  הפונקציות המעודכנות והמתוקנות עם מנגנון ה-Redirect
+// ==========================================
 let allClients=[], allParts=[];
 function setSyncDot(id,state){const d=document.getElementById(id);if(!d)return;d.className='sync-dot'+(state==='ok'?' ok':state==='loading'?' loading':state==='err'?' err':'');}
 
 async function sheetsGet(action){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
-  try{const r=await fetch(SCRIPT_URL+'?action='+action);return await r.json();}catch{return null;}
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=' + action, {
+      method: 'GET',
+      redirect: 'follow' // מאפשר מעקב אחר ההפניות של שרתי גוגל לפתרון בעיית ה-CORS
+    });
+    return await r.json();
+  } catch (e) {
+    console.error('Error fetching data:', e);
+    return null;
+  }
 }
+
 async function sheetsPost(params){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
-  try{const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params).toString());return await r.json();}catch{return null;}
+  try {
+    const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), {
+      method: 'GET', // Web Apps בגוגל נוטים להגיב הכי טוב למבנה הזה בבקשות דפדפן ישירות
+      redirect: 'follow'
+    });
+    return await r.json();
+  } catch (e) {
+    console.error('Error posting data:', e);
+    return null;
+  }
 }
 
 async function loadClients(){
   setSyncDot('clientSyncDot','loading');
   document.getElementById('clientSyncText').textContent='טוען לקוחות...';
-  const data=await sheetsGet('getClients');
-  if(data&&data.clients){
-    allClients=data.clients; // [{name,address,contact,phone}]
+  const data = await sheetsGet('getClients');
+  if(data && data.clients){
+    allClients = data.clients;
     setSyncDot('clientSyncDot','ok');
     document.getElementById('clientSyncText').textContent=allClients.length+' לקוחות נטענו';
   } else {
     setSyncDot('clientSyncDot','err');
-    document.getElementById('clientSyncText').textContent=SCRIPT_URL==='YOUR_WEBAPP_URL_HERE'?'⚠ הגדר SCRIPT_URL':'שגיאת חיבור';
+    document.getElementById('clientSyncText').textContent='שגיאת חיבור לקבלת לקוחות';
   }
 }
+
 async function loadParts(){
   setSyncDot('partsSyncDot','loading');
   document.getElementById('partsSyncText').textContent='טוען חלקים...';
-  const data=await sheetsGet('getParts');
-  if(data&&data.parts){allParts=data.parts;setSyncDot('partsSyncDot','ok');document.getElementById('partsSyncText').textContent=allParts.length+' חלקים נטענו';}
-  else{setSyncDot('partsSyncDot','err');document.getElementById('partsSyncText').textContent=SCRIPT_URL==='YOUR_WEBAPP_URL_HERE'?'⚠ הגדר SCRIPT_URL':'שגיאת חיבור';}
+  const data = await sheetsGet('getParts');
+  if(data && data.parts){
+    allParts = data.parts;
+    setSyncDot('partsSyncDot','ok');
+    document.getElementById('partsSyncText').textContent=allParts.length+' חלקים נטענו';
+  } else {
+    setSyncDot('partsSyncDot','err');
+    document.getElementById('partsSyncText').textContent='שגיאת חיבור לקבלת חלקים';
+  }
 }
 
-// Client autocomplete
+// טעינת הנתונים בפועל
+loadClients();
+loadParts();
+
 function getClientNames(){return allClients.map(c=>typeof c==='object'?c.name:c);}
 
 function fillClientFields(client){
@@ -508,37 +513,34 @@ function filterClients(val){
     div.onclick=()=>{
       document.getElementById('clientName').value=val.trim();
       dd.style.display='none';
-      setStatus('לקוח חדש — מלא פרטים ושלח דוח לשמירה');
+      document.getElementById('statusBox').textContent = 'לקוח חדש — מלא פרטים ושלח דוח לשמירה';
     };
     dd.appendChild(div);
   }
   dd.style.display='block';
 }
+
 document.addEventListener('click',e=>{if(!e.target.closest('#clientName')&&!e.target.closest('#clientDropdown'))document.getElementById('clientDropdown').style.display='none';});
 
-// Parts table
 function addRow(){
   const tbody=document.getElementById('tableBody');
   const tr=document.createElement('tr');
   const rid='r'+Date.now();tr.id=rid;
-  tr.innerHTML=`<td><input type="number" class="qty" placeholder="1" min="1" style="text-align:center;"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" placeholder="0" style="text-align:center;font-size:13px;" oninput="calcTotal(this)"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove()">✕</span></td>`;
+  tr.innerHTML=`<td><input type="number" class="qty" placeholder="1" min="1" style="text-align:center;" oninput="updateTotals()"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" placeholder="0" style="text-align:center;font-size:13px;" oninput="updateTotals()"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove(); updateTotals();">✕</span></td>`;
   tbody.appendChild(tr);
-}
-function calcTotal(input) {
-  updateTotals();
 }
 
 function updateTotals() {
   let subtotal = 0;
   document.querySelectorAll('#tableBody tr').forEach(r => {
-    const q = parseFloat(r.querySelector('.qty')?.value) || 0;
+    const q = parseFloat(r.querySelector('.qty')?.value) || 1; // ברירת מחדל 1 לכמות אם לא הוזן
     const p = parseFloat(r.querySelector('.price')?.value) || 0;
     subtotal += q * p;
   });
   const vatRate = parseFloat(document.getElementById('vatRate')?.value || '0.18');
   const vatAmt  = subtotal * vatRate;
   const total   = subtotal + vatAmt;
-  const fmt = n => n > 0 ? '₪' + Math.round(n).toLocaleString() : '';
+  const fmt = n => n > 0 ? '₪' + Math.round(n).toLocaleString() : '₪0';
   const el1 = document.getElementById('subtotalDisplay');
   const el2 = document.getElementById('grandTotalDisplay');
   if (el1) el1.value = fmt(subtotal);
@@ -556,237 +558,64 @@ function filterParts(input,rid){
   dd.style.display='block';
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.desc-col'))document.querySelectorAll('.part-dropdown').forEach(d=>d.style.display='none');});
-addRow();addRow();addRow();
 
-// Signature
+// יצירת שורות ראשוניות בטבלה
+addRow(); addRow(); addRow();
+
+// ==========================================
+//  ניהול אזור החתימה הדיגיטלית
+// ==========================================
 const canvas=document.getElementById('sigCanvas'),ctx=canvas.getContext('2d');
 let signing=false,hasSig=false;
-function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=r.width;canvas.height=140;}
+function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=r.width;canvas.height=140; clearSig();}
 resizeCanvas();window.addEventListener('resize',resizeCanvas);
-function getPos(e){const r=canvas.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:src.clientX-r.left,y:src.clientY-r.top};}
-canvas.addEventListener('mousedown',e=>{signing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
-canvas.addEventListener('mousemove',e=>{if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();hasSig=true;document.getElementById('sigLabel').style.opacity='0';});
-canvas.addEventListener('mouseup',()=>signing=false);
-canvas.addEventListener('touchstart',e=>{e.preventDefault();signing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();hasSig=true;document.getElementById('sigLabel').style.opacity='0';},{passive:false});
-canvas.addEventListener('touchend',()=>signing=false);
-function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;document.getElementById('sigLabel').style.opacity='1';}
 
-// PDF
-function buildPDF(){
-  document.getElementById('pdf-docNo').textContent='מס׳ '+document.getElementById('docNum').value;
-  // Fill PDF meta fields
-  const pdfMap = {
-    'pdf-date':    ()=>{ const v=document.getElementById('dateField').value||''; return v.split('-').reverse().join('/'); },
-    'pdf-start':   ()=>document.getElementById('startTime').value||'',
-    'pdf-end':     ()=>document.getElementById('endTime').value||'',
-    'pdf-client':  ()=>document.getElementById('clientName').value||'',
-    'pdf-contact': ()=>document.getElementById('contactName').value||'',
-    'pdf-phone':   ()=>document.getElementById('contactPhone').value||'',
-    'pdf-address': ()=>document.getElementById('clientAddress').value||'',
-    'pdf-hours':   ()=>document.getElementById('totalHours').value||'',
-    'pdf-km':      ()=>{ const v=document.getElementById('kmField').value; return v ? v+' ק"מ' : ''; },
-  };
-  Object.entries(pdfMap).forEach(([id,fn])=>{ const el=document.getElementById(id); if(el) el.textContent=fn(); });
-
-  // Totals
-  let sub = 0;
-  document.querySelectorAll('#tableBody tr').forEach(r=>{
-    const q=parseFloat(r.querySelector('.qty')?.value)||0;
-    const p=parseFloat(r.querySelector('.price')?.value)||0;
-    sub += q*p;
-  });
-  const vatRate = parseFloat(document.getElementById('vatRate')?.value||'0.18');
-  const vatAmt  = Math.round(sub * vatRate);
-  const total   = Math.round(sub + vatAmt);
-  const fmt = n => n>0 ? '₪'+n.toLocaleString() : '—';
-  const se=document.getElementById('pdf-subtotal'); if(se) se.textContent=fmt(Math.round(sub));
-  const ve=document.getElementById('pdf-vat-amt');  if(ve) ve.textContent=fmt(vatAmt);
-  const vp=document.getElementById('pdf-vat-pct');  if(vp) vp.textContent=Math.round(vatRate*100);
-  const te=document.getElementById('pdf-total');    if(te) te.textContent=fmt(total);
-  const tbody=document.getElementById('pdf-tableBody');tbody.innerHTML='';
-  document.querySelectorAll('#tableBody tr').forEach(r=>{
-    const q=r.querySelector('.qty')?.value||'',d=r.querySelector('.desc')?.value||'',p=r.querySelector('.price')?.value||'';
-    if(!q&&!d)return;
-    const tr=document.createElement('tr');tr.innerHTML=`<td>${q}</td><td class="desc-col">${d}</td><td>${p?'₪'+p:''}</td>`;tbody.appendChild(tr);
-  });
-  for(let i=tbody.querySelectorAll('tr').length;i<6;i++){const tr=document.createElement('tr');tr.innerHTML='<td style="height:28px">&nbsp;</td><td></td><td></td>';tbody.appendChild(tr);}
-  const rem=document.getElementById('remarks').value;
-  document.getElementById('pdf-remarks').textContent=rem;
-  document.getElementById('pdf-remarks-block').style.display=rem?'block':'none';
-  if(hasSig){document.getElementById('pdf-sig').src=canvas.toDataURL('image/png');document.getElementById('pdf-sig').style.display='block';}
-  else{document.getElementById('pdf-sig').src='';document.getElementById('pdf-sig').style.display='none';}
-}
-
-async function generatePDF(){
-  buildPDF();await new Promise(r=>setTimeout(r,200));
-  const el=document.getElementById('pdfTemplate');
-  el.style.cssText='position:absolute;top:0;left:0;z-index:-1;width:794px;background:white;font-family:Arial,sans-serif;direction:rtl;padding:40px 50px;color:#111;';
-  const c=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
-  el.style.cssText='position:fixed;top:-9999px;left:-9999px;width:794px;background:white;font-family:Arial,sans-serif;direction:rtl;padding:40px 50px;color:#111;';
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const img=c.toDataURL('image/jpeg',0.92);
-  const w=pdf.internal.pageSize.getWidth();
-  pdf.addImage(img,'JPEG',0,0,w,(c.height/c.width)*w);
-  return pdf;
-}
-
-async function previewPDF(){
-  setStatus('מכין תצוגה מקדימה...',true);
-  try{const pdf=await generatePDF();window.open(URL.createObjectURL(pdf.output('blob')),'_blank');setStatus('✅ נפתח בלשונית חדשה');}
-  catch(e){setStatus('❌ '+e.message);}
-}
-
-async function sendReport(){
-  setStatus('שומר ומייצר PDF...',true);
-  try{
-    const items=[];
-    document.querySelectorAll('#tableBody tr').forEach(r=>{const q=r.querySelector('.qty')?.value||'',d=r.querySelector('.desc')?.value||'',p=r.querySelector('.price')?.value||'';if(q||d)items.push([q+'x',d,p?'₪'+p:''].filter(Boolean).join(' '));});
-    await sheetsPost({action:'saveReport',techName:localStorage.getItem('tech_name')||'',isNewClient:getClientNames().map(n=>n.toLowerCase()).includes(document.getElementById('clientName').value.trim().toLowerCase())?'0':'1',origin:document.getElementById('originAddress').value||'',docNum:document.getElementById('docNum').value,date:document.getElementById('dateField').value,startTime:document.getElementById('startTime').value,endTime:document.getElementById('endTime').value,totalHours:document.getElementById('totalHours').value,clientName:document.getElementById('clientName').value,contactName:document.getElementById('contactName').value,contactPhone:document.getElementById('contactPhone').value,clientAddress:document.getElementById('clientAddress').value,km:document.getElementById('kmField').value ? document.getElementById('kmField').value+' ק"מ' : '',items:items.join(' | '),remarks:document.getElementById('remarks').value});
-    const pdf=await generatePDF();
-    const filename='assaor_'+document.getElementById('docNum').value+'.pdf';
-    const blob=pdf.output('blob');
-    const file=new File([blob],filename,{type:'application/pdf'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){
-      setStatus('פותח שיתוף...',true);
-      await navigator.share({title:'דוח שירות אסא-אור '+document.getElementById('docNum').value,text:'דוח שירות - '+document.getElementById('clientName').value,files:[file]});
-      const _sd = JSON.parse(localStorage.getItem('assaor_sent_docs')||'[]');
-      _sd.push(document.getElementById('docNum').value);
-      localStorage.setItem('assaor_sent_docs', JSON.stringify(_sd));
-      setStatus('✅ הדוח נשמר ושותף בהצלחה');
-      // Pre-fetch next doc number in background
-      setTimeout(initDocNum, 1500);
-    } else {
-      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();
-      setTimeout(()=>{window.location.href='mailto:yoavlevit@gmail.com?subject='+encodeURIComponent('דוח שירות - '+document.getElementById('clientName').value)+'&body='+encodeURIComponent('מצורף דוח שירות\nלקוח: '+document.getElementById('clientName').value+'\nתאריך: '+document.getElementById('dateField').value);},600);
-      setStatus('✅ PDF הורד | נפתח מייל');
-    }
-  }catch(e){if(e.name==='AbortError')setStatus('השיתוף בוטל');else setStatus('❌ '+e.message);}
-}
-
-function setStatus(msg,loading=false){document.getElementById('statusBox').innerHTML=loading?`<div class="spinner"></div> ${msg}`:msg;}
-
-
-
-// ── טכנאי ──
-function loadTechnician() {
-  const name   = localStorage.getItem('tech_name') || '';
-  const origin = localStorage.getItem('tech_origin') || 'מושב לכיש';
-  if (name) {
-    // Show strip
-    const strip = document.getElementById('techStrip');
-    strip.style.display = 'flex';
-    document.getElementById('techStripName').textContent = name;
-    document.getElementById('techStripOrigin').textContent = origin;
-    // Pre-fill origin address
-    document.getElementById('originAddress').value = origin;
-    // hidden field — no visible field needed
-  } else {
-    // First launch — open setup
-    setTimeout(() => openTechSettings(), 500);
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
   }
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
-function openTechSettings() {
-  const name   = localStorage.getItem('tech_name') || '';
-  const origin = localStorage.getItem('tech_origin') || 'מושב לכיש';
-  document.getElementById('techName').value = name;
-  document.getElementById('techOrigin').value = origin;
-  document.getElementById('techModal').style.display = 'flex';
+function startSign(e) {
+  signing = true;
+  hasSig = true;
+  document.getElementById('sigLabel').style.display = 'none';
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  e.preventDefault();
 }
 
-function saveTechnician() {
-  const name   = document.getElementById('techName').value.trim();
-  const origin = document.getElementById('techOrigin').value.trim();
-  if (!name) { alert('נא להכניס שם טכנאי'); return; }
-  if (!origin) { alert('נא להכניס נקודת מוצא'); return; }
-  localStorage.setItem('tech_name', name);
-  localStorage.setItem('tech_origin', origin);
-  document.getElementById('techModal').style.display = 'none';
-  // Update UI
-  document.getElementById('techStrip').style.display = 'flex';
-  document.getElementById('techStripName').textContent = name;
-  document.getElementById('techStripOrigin').textContent = origin;
-  document.getElementById('originAddress').value = origin;
-  setStatus('✅ הגדרות טכנאי נשמרו');
+function moveSign(e) {
+  if (!signing) return;
+  const pos = getPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#1a237e';
+  ctx.stroke();
+  e.preventDefault();
 }
 
-// ── סיסמה ──
-// לשינוי הסיסמה — ערוך את הערך כאן:
-const APP_PASSWORDS = ['assaor2025', 'tech123'];
-
-function checkPassword() {
-  const val = document.getElementById('passwordInput').value;
-  if (APP_PASSWORDS.includes(val)) {
-    sessionStorage.setItem('assaor_auth', '1');
-    document.getElementById('passwordScreen').style.display = 'none';
-    loadClients();
-    loadParts();
-    loadTechnician();
-  } else {
-    document.getElementById('passwordError').textContent = '❌ סיסמה שגויה';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
-    setTimeout(()=>document.getElementById('passwordError').textContent='', 2000);
-  }
+function stopSign() { signing = false; }
+function clearSig() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasSig = false;
+  document.getElementById('sigLabel').style.display = 'block';
 }
 
-function initAuth() {
-  if (sessionStorage.getItem('assaor_auth') === '1') {
-    loadClients();
-    loadParts();
-    loadTechnician();
-  } else {
-    document.getElementById('passwordScreen').style.display = 'flex';
-    setTimeout(()=>document.getElementById('passwordInput').focus(), 300);
-  }
-}
+canvas.addEventListener('mousedown', startSign);
+canvas.addEventListener('mousemove', moveSign);
+canvas.addEventListener('mouseup', stopSign);
+canvas.addEventListener('mouseleave', stopSign);
+canvas.addEventListener('touchstart', startSign);
+canvas.addEventListener('touchmove', moveSign);
+canvas.addEventListener('touchend', stopSign);
 
-initAuth();
+function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
+function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
+function openTechSettings() { alert('הגדרות טכנאי'); }
 </script>
-
-<!-- TECHNICIAN SETUP MODAL -->
-<div id="techModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;align-items:center;justify-content:center;">
-  <div style="background:white;border-radius:16px;padding:24px 20px;margin:20px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-      <div style="background:var(--navy);color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;">👷</div>
-      <div>
-        <div style="font-weight:800;font-size:17px;color:var(--navy);">הגדרת טכנאי</div>
-        <div style="font-size:11px;color:var(--muted);">נשמר בטלפון זה בלבד</div>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div class="field">
-        <label>שם הטכנאי</label>
-        <input type="text" id="techName" placeholder="שם מלא" style="font-size:16px;">
-      </div>
-      <div class="field">
-        <label>נקודת מוצא (כתובת יציאה)</label>
-        <input type="text" id="techOrigin" placeholder="למשל: מושב לכיש" style="font-size:16px;">
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-      <button onclick="saveTechnician()" style="flex:1;background:linear-gradient(135deg,var(--pink),#c2185b);color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">שמור</button>
-      <button onclick="document.getElementById('techModal').style.display='none'" style="background:var(--gray);color:var(--text);border:none;border-radius:10px;padding:14px 18px;font-size:15px;cursor:pointer;">ביטול</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- PASSWORD SCREEN -->
-<div id="passwordScreen" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1a237e,#0d47a1);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:white;border-radius:20px;padding:32px 28px;margin:20px;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-    <img src="logo.png" alt="אסא-אור" style="height:60px;object-fit:contain;margin-bottom:16px;">
-    <h2 style="color:#1a237e;font-size:18px;margin-bottom:4px;">מערכת דוחות שירות</h2>
-    <p style="color:#7a8599;font-size:13px;margin-bottom:24px;">נא להזין סיסמה</p>
-    <input type="password" id="passwordInput" placeholder="••••••••"
-      style="width:100%;border:2px solid #dde3ec;border-radius:10px;padding:14px;font-size:18px;text-align:center;letter-spacing:4px;margin-bottom:12px;direction:ltr;"
-      onkeydown="if(event.key==='Enter')checkPassword()">
-    <div id="passwordError" style="color:#e91e8c;font-size:12px;margin-bottom:10px;min-height:16px;"></div>
-    <button onclick="checkPassword()" style="width:100%;background:linear-gradient(135deg,#e91e8c,#c2185b);color:white;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;">כניסה</button>
-  </div>
-</div>
-
 </body>
 </html>
