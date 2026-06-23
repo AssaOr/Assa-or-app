@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>אסא-אור | דוח שירות</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -661,6 +666,13 @@ window.addEventListener('resize', resizeCanvas);
 
 function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
 function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('serviceWorker.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch((err) => console.log('Service Worker Failed', err));
+  }
 </script>
 </body>
 </html>
