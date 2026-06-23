@@ -104,6 +104,9 @@
   .pdf-sig-img { width: 200px; height: 80px; border-bottom: 1px solid #111; }
   .pdf-confirm { font-size: 11px; color: #555; max-width: 300px; line-height: 1.6; }
   .pdf-footer { margin-top: 20px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 10px; }
+
+  /* Tech Strip Design */
+  .tech-strip { background: var(--navy); color: white; padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
 </style>
 
 <link rel="manifest" href="data:application/json,{
@@ -131,11 +134,10 @@
   <button onclick="openTechSettings()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:18px;cursor:pointer;flex-shrink:0;" title="הגדרות טכנאי">👷</button>
 </div>
 
-<div id="techStrip" style="background:var(--navy);color:white;padding:6px 16px;font-size:12px;display:flex;align-items:center;gap:8px;display:none;">
+<div id="techStrip" class="tech-strip" style="display:none;">
   <span>👷</span>
-  <span id="techStripName" style="font-weight:700;"></span>
+  <span>טכנאי: <strong id="techStripName"></strong></span>
 </div>
-<span id="techStripOrigin" style="display:none;"></span>
 
 <div class="card">
   <div class="card-title">פרטי קריאה</div>
@@ -146,7 +148,7 @@
   <div class="field-row">
     <div class="field"><label>שעת התחלה</label><input type="time" id="startTime"></div>
     <div class="field"><label>שעת סיום</label><input type="time" id="endTime"></div>
-    <div class="field computed"><label>סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00" style="cursor:text;"></div>
+    <div class="field computed"><label>סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00" readonly></div>
   </div>
   <div class="field-row">
     <div class="field">
@@ -169,11 +171,11 @@
     </div>
     <div class="field computed-km" style="flex:1;">
       <label>ק"מ</label>
-      <input type="number" id="kmField" placeholder="ידנית / אוטו'" style="background:#fff0f8;border-color:var(--pink);font-weight:700;color:var(--navy);">
+      <input type="number" id="kmField" placeholder="ידנית / אוטו'">
     </div>
     <button onclick="calcKmFromAddresses()" style="background:var(--pink);color:white;border:none;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-bottom:1px;">חשב ק"מ</button>
   </div>
-  <div style="display:none;"><div id="gpsDot"></div><span id="gpsStatus"></span></div>
+  <div class="gps-badge"><div class="gps-dot" id="gpsDot"></div><span id="gpsStatus">לחץ "חשב ק"מ" לחישוב אוטומטי</span></div>
 </div>
 
 <div class="card">
@@ -362,7 +364,7 @@ async function geocode(address) {
 }
 
 function onAddressChange() {
-  document.getElementById('gpsDot').classList.remove('active');
+  document.getElementById('gpsDot').className = 'gps-dot';
   document.getElementById('gpsStatus').textContent = 'לחץ "חשב ק"מ" לחישוב אוטומטי';
 }
 
@@ -408,7 +410,7 @@ async function calcKmFromAddresses() {
 }
 
 // ==========================================
-//  הפונקציות המעודכנות והמתוקנות עם מנגנון ה-Redirect
+// פונקציות תקשורת מול גוגל שיטס
 // ==========================================
 let allClients=[], allParts=[];
 function setSyncDot(id,state){const d=document.getElementById(id);if(!d)return;d.className='sync-dot'+(state==='ok'?' ok':state==='loading'?' loading':state==='err'?' err':'');}
@@ -418,7 +420,7 @@ async function sheetsGet(action){
   try {
     const r = await fetch(SCRIPT_URL + '?action=' + action, {
       method: 'GET',
-      redirect: 'follow' // מאפשר מעקב אחר ההפניות של שרתי גוגל לפתרון בעיית ה-CORS
+      redirect: 'follow'
     });
     return await r.json();
   } catch (e) {
@@ -431,7 +433,7 @@ async function sheetsPost(params){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
   try {
     const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), {
-      method: 'GET', // Web Apps בגוגל נוטים להגיב הכי טוב למבנה הזה בבקשות דפדפן ישירות
+      method: 'GET',
       redirect: 'follow'
     });
     return await r.json();
@@ -533,7 +535,7 @@ function addRow(){
 function updateTotals() {
   let subtotal = 0;
   document.querySelectorAll('#tableBody tr').forEach(r => {
-    const q = parseFloat(r.querySelector('.qty')?.value) || 1; // ברירת מחדל 1 לכמות אם לא הוזן
+    const q = parseFloat(r.querySelector('.qty')?.value) || 1;
     const p = parseFloat(r.querySelector('.price')?.value) || 0;
     subtotal += q * p;
   });
@@ -563,12 +565,49 @@ document.addEventListener('click',e=>{if(!e.target.closest('.desc-col'))document
 addRow(); addRow(); addRow();
 
 // ==========================================
-//  ניהול אזור החתימה הדיגיטלית
+// מערכת ניהול והגדרות טכנאי
+// ==========================================
+function openTechSettings() {
+  const currentName = localStorage.getItem('assaor_tech_name') || '';
+  const currentOrigin = document.getElementById('originAddress').value || 'מושב לכיש';
+  
+  const name = prompt('הכנס שם טכנאי:', currentName);
+  if (name === null) return;
+  
+  const origin = prompt('הכנס כתובת מוצא לחישוב ק"מ:', currentOrigin);
+  if (origin === null) return;
+  
+  localStorage.setItem('assaor_tech_name', name.trim());
+  localStorage.setItem('assaor_tech_origin', origin.trim());
+  
+  updateTechDisplay();
+  alert('ההגדרות נשמרו בהצלחה!');
+}
+
+function updateTechDisplay() {
+  const name = localStorage.getItem('assaor_tech_name');
+  const origin = localStorage.getItem('assaor_tech_origin') || 'מושב לכיש';
+  
+  const strip = document.getElementById('techStrip');
+  const stripName = document.getElementById('techStripName');
+  const originInput = document.getElementById('originAddress');
+  
+  if (originInput) originInput.value = origin;
+  
+  if (name && name.trim() !== '' && strip && stripName) {
+    stripName.textContent = name;
+    strip.style.display = 'flex';
+  } else if (strip) {
+    strip.style.display = 'none';
+  }
+}
+
+// ==========================================
+// ניהול אזור החתימה הדיגיטלית
 // ==========================================
 const canvas=document.getElementById('sigCanvas'),ctx=canvas.getContext('2d');
 let signing=false,hasSig=false;
 function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=r.width;canvas.height=140; clearSig();}
-resizeCanvas();window.addEventListener('resize',resizeCanvas);
 
 function getPos(e) {
   const r = canvas.getBoundingClientRect();
@@ -613,9 +652,15 @@ canvas.addEventListener('touchstart', startSign);
 canvas.addEventListener('touchmove', moveSign);
 canvas.addEventListener('touchend', stopSign);
 
+// טעינה ראשונית של הגדרות עמוד וטכנאי
+document.addEventListener('DOMContentLoaded', () => {
+  resizeCanvas();
+  updateTechDisplay();
+});
+window.addEventListener('resize', resizeCanvas);
+
 function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
 function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
-function openTechSettings() { alert('הגדרות טכנאי'); }
 </script>
 </body>
 </html>
