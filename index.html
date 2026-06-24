@@ -304,15 +304,29 @@ const now = new Date();
 
 async function initDocNum() {
   try {
+
+    // 🔴 אם כבר יש מספר שמור - לא מבקשים חדש
+    const saved = localStorage.getItem('currentDocNum');
+    if (saved) {
+      currentDocNum = saved;
+      document.getElementById('docNumber').textContent = 'מס׳ ' + saved;
+      document.getElementById('docNum').value = saved;
+      return;
+    }
+
+    // אחרת - מביאים מהשרת
     const res = await sheetsGet('getNextDocNum');
 
     if (res && res.docNum) {
-      currentDocNum = res.docNum; // שמירה בזיכרון
+      currentDocNum = res.docNum;
+
       document.getElementById('docNumber').textContent = 'מס׳ ' + res.docNum;
       document.getElementById('docNum').value = res.docNum;
-    } else {
-      throw new Error('no doc');
+
+      // 🔵 שומרים מקומית כדי שלא יתחלף ברענון
+      localStorage.setItem('currentDocNum', res.docNum);
     }
+
   } catch (e) {
     document.getElementById('docNumber').textContent = 'שגיאה במספר מסמך';
   }
@@ -720,7 +734,7 @@ async function sendReport() {
   const blob = pdf.output('blob');
   document.getElementById('statusBox').textContent = 'נשלח בהצלחה';
 //initDocNum(); // מביא מספר חדש מהשרת
-
+localStorage.removeItem('currentDocNum');
   const file = new File(
   [blob],
   `service-report-${currentDocNum || 'temp'}.pdf`,
