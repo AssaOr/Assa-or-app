@@ -558,24 +558,45 @@ function filterParts(input,rid){
 document.addEventListener('click',e=>{if(!e.target.closest('.desc-col'))document.querySelectorAll('.part-dropdown').forEach(d=>d.style.display='none');});
 addRow();addRow();addRow();
 
-// Signature
+// Signature - מערכת החתימה המשופרת שלך
 const canvas=document.getElementById('sigCanvas'),ctx=canvas.getContext('2d');
 let signing=false,hasSig=false;
 function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=r.width;canvas.height=140;}
 resizeCanvas();window.addEventListener('resize',resizeCanvas);
 function getPos(e){const r=canvas.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:src.clientX-r.left,y:src.clientY-r.top};}
+
 canvas.addEventListener('mousedown',e=>{signing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
 canvas.addEventListener('mousemove',e=>{if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();hasSig=true;document.getElementById('sigLabel').style.opacity='0';});
 canvas.addEventListener('mouseup',()=>signing=false);
+
 canvas.addEventListener('touchstart',e=>{e.preventDefault();signing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();hasSig=true;document.getElementById('sigLabel').style.opacity='0';},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2.5;canvas.getContext('2d').lineCap='round';ctx.stroke();hasSig=true;document.getElementById('sigLabel').style.opacity='0';},{passive:false});
 canvas.addEventListener('touchend',()=>signing=false);
+
 function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;document.getElementById('sigLabel').style.opacity='1';}
 
-// PDF
+// הגדרות טכנאי
+function openTechSettings() {
+  const name = prompt('שם טכנאי:', localStorage.getItem('assaor_tech_name') || '');
+  if (name !== null) {
+    localStorage.setItem('assaor_tech_name', name);
+    const strip = document.getElementById('techStrip');
+    const label = document.getElementById('techStripName');
+    if(name.trim()) { label.textContent = name; strip.style.display = 'flex'; } 
+    else { strip.style.display = 'none'; }
+  }
+}
+const savedTech = localStorage.getItem('assaor_tech_name');
+if(savedTech) {
+  document.getElementById('techStripName').textContent = savedTech;
+  document.getElementById('techStrip').style.display = 'flex';
+}
+
+function setStatus(msg) { document.getElementById('statusBox').textContent = msg; }
+
+// PDF - בניית הנתונים לתוך הבלוק המעוצב
 function buildPDF(){
   document.getElementById('pdf-docNo').textContent='מס׳ '+document.getElementById('docNum').value;
-  // Fill PDF meta fields
   const pdfMap = {
     'pdf-date':    ()=>{ const v=document.getElementById('dateField').value||''; return v.split('-').reverse().join('/'); },
     'pdf-start':   ()=>document.getElementById('startTime').value||'',
@@ -588,6 +609,145 @@ function buildPDF(){
     'pdf-km':      ()=>{ const v=document.getElementById('kmField').value; return v ? v+' ק"מ' : ''; },
   };
   Object.entries(pdfMap).forEach(([id,fn])=>{ const el=document.getElementById(id); if(el) el.textContent=fn(); });
+
+  // העברת החתימה ל-PDF
+  const pdfSigImg = document.getElementById('pdf-sig');
+  if (hasSig && pdfSigImg) { pdfSigImg.src = canvas.toDataURL('image/png'); } 
+  else if (pdfSigImg) { pdfSigImg.src = ''; }
+
+  // הערות
+  document.getElementById('pdf-remarks').textContent = document.getElementById('remarks').value || '';
+
+  // העברת טבלת החלקים לתוך ה-PDF
+  const pdfTbody = document.getElementById('pdf-tableBody');
+  pdfTbody.innerHTML = '';
+  document.querySelectorAll('#tableBody tr').forEach(row => {
+    const qty = row.querySelector('.qty')?.value || '';
+    const desc = row.querySelector('.desc')?.value || '';
+    const price = row.querySelector('.price')?.value || '';
+    if (desc.trim() !== '') {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="text-align:center;">${qty}</td><td style="text-align:right; direction:rtl; padding-right:8px;">${desc}</td><td style="text-align:center;">${price ? '₪' + price : ''}</td>`;
+      pdfTbody.appendChild(tr);
+    }
+  });
+
+  // סיכומי מחירים ומע"מ ב-PDF
+  const vatRate = parseFloat(document.getElementById('vatRate')?.value || '0.18');
+  document.getElementById('pdf-vat-pct').textContent = Math.round(vatRate * 100);
+  document.getElementById('pdf-subtotal').textContent = document.getElementById('subtotalDisplay').value || '₪0';
+  
+  let subtotalNum = 0;
+  document.querySelectorAll('#tableBody tr').forEach(r => {
+    const q = parseFloat(r.querySelector('.qty')?.value) || 1;
+    const p = parseFloat(r.querySelector('.price')?.value) || 0;
+    subtotalNum += q * p;
+  });
+  document.getElementById('pdf-vat-amt').textContent = '₪' + Math.round(subtotalNum * vatRate).toLocaleString();
+  document.getElementById('pdf-total').textContent = document.getElementById('grandTotalDisplay').value || '₪0';
+}
+
+// 👁 כפתור תצוגה מקדימה
+async function previewPDF() {
+  setStatus('מייצר תצוגה מקדימה...');
+  buildPDF();
+  const element = document.getElementById('pdfTemplate');
+  element.style.position = 'static';
+  element.style.left = '0'; element.style.top = '0';
+
+  try {
+    const canvasObj = await html2canvas(element, { scale: 2, useCORS: true });
+    element.style.position = 'fixed'; element.style.left = '-9999px'; element.style.top = '-9999px';
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    pdf.addImage(canvasObj.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
+    window.open(pdf.output('bloburl'), '_blank');
+    setStatus('תצוגה מקדימה מוכנה');
+  } catch (error) {
+    console.error(error); setStatus('שגיאה ביצירת תצוגה מקדימה');
+  }
+}
+
+// 📤 כפתור שלח דוח (שומר בשיטס ומקפיץ שיתוף)
+async function sendReport() {
+  const clientName = document.getElementById('clientName').value || '';
+  if(!clientName.trim()){ alert('אנא הזן שם לקוח לפני השליחה'); return; }
+
+  setStatus('שומר דוח ומייצר קובץ לשיתוף...');
+  const docNum = document.getElementById('docNum').value || '';
+  const techName = localStorage.getItem('assaor_tech_name') || '';
+  
+  let itemsSummary = [];
+  document.querySelectorAll('#tableBody tr').forEach(row => {
+    const qty = row.querySelector('.qty')?.value || '1';
+    const desc = row.querySelector('.desc')?.value || '';
+    if (desc.trim()) itemsSummary.push(`${qty} x ${desc}`);
+  });
+
+  const reportData = {
+    action: 'saveReport',
+    docNum: docNum,
+    techName: techName,
+    date: document.getElementById('dateField').value,
+    startTime: document.getElementById('startTime').value,
+    endTime: document.getElementById('endTime').value,
+    totalHours: document.getElementById('totalHours').value,
+    clientName: clientName,
+    contactName: document.getElementById('contactName').value,
+    contactPhone: document.getElementById('contactPhone').value,
+    clientAddress: document.getElementById('clientAddress').value,
+    origin: document.getElementById('originAddress').value,
+    km: document.getElementById('kmField').value,
+    items: itemsSummary.join(' | '),
+    remarks: document.getElementById('remarks').value
+  };
+
+  try {
+    // 1. שמירה לגוגל שיטס
+    await fetch(SCRIPT_URL + '?' + new URLSearchParams(reportData).toString(), { method: 'GET', redirect: 'follow' });
+    const SENT_KEY = 'assaor_sent_docs';
+    const sentDocs = JSON.parse(localStorage.getItem(SENT_KEY) || '[]');
+    sentDocs.push(docNum);
+    localStorage.setItem(SENT_KEY, JSON.stringify(sentDocs));
+
+    // 2. יצירת ה-PDF
+    buildPDF();
+    const element = document.getElementById('pdfTemplate');
+    element.style.position = 'static';
+    const canvasObj = await html2canvas(element, { scale: 2, useCORS: true });
+    element.style.position = 'fixed'; element.style.left = '-9999px';
+    
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    pdf.addImage(canvasObj.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
+    const pdfBlob = pdf.output('blob');
+    const file = new File([pdfBlob], `דוח_שירות_${docNum}.pdf`, { type: 'application/pdf' });
+
+    setStatus('דוח נשמר! פותח שיתוף...');
+
+    // 3. שיתוף מובנה (וואטסאפ וכו') בנייד, או הורדה למחשב
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: `תעודת משלוח מס׳ ${docNum}`,
+        text: `שלום, מצורף דוח שירות/תעודת משלוח עבור ${clientName}.`
+      });
+      setStatus('הדוח שותף בהצלחה!');
+    } else {
+      pdf.save(`דוח_שירות_${docNum}.pdf`);
+      setStatus('הדוח נשמר והורד');
+    }
+  } catch (error) {
+    console.error(error); setStatus('שגיאה בתהליך השמירה והשיתוף');
+  }
+}
+
+// הפעלת טעינה
+loadClients();
+loadParts();
+</script>
+</body>
+</html>
 
   // Totals
   let sub = 0;
@@ -714,33 +874,33 @@ function saveTechnician() {
 
 // ── סיסמה ──
 // לשינוי הסיסמה — ערוך את הערך כאן:
-const APP_PASSWORDS = ['assaor2025', 'tech123'];
+//const APP_PASSWORDS = ['assaor2025', 'tech123'];
 
-function checkPassword() {
-  const val = document.getElementById('passwordInput').value;
-  if (APP_PASSWORDS.includes(val)) {
-    sessionStorage.setItem('assaor_auth', '1');
-    document.getElementById('passwordScreen').style.display = 'none';
-    loadClients();
-    loadParts();
-    loadTechnician();
-  } else {
-    document.getElementById('passwordError').textContent = '❌ סיסמה שגויה';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
-    setTimeout(()=>document.getElementById('passwordError').textContent='', 2000);
-  }
-}
+//function checkPassword() {
+//  const val = document.getElementById('passwordInput').value;
+//  if (APP_PASSWORDS.includes(val)) {
+//    sessionStorage.setItem('assaor_auth', '1');
+//    document.getElementById('passwordScreen').style.display = 'none';
+//    loadClients();
+ //   loadParts();
+ //   loadTechnician();
+//  } else {
+//    document.getElementById('passwordError').textContent = '❌ סיסמה שגויה';
+//    document.getElementById('passwordInput').value = '';
+//    document.getElementById('passwordInput').focus();
+//    setTimeout(()=>document.getElementById('passwordError').textContent='', 2000);
+ // }
+//}
 
-function initAuth() {
-  if (sessionStorage.getItem('assaor_auth') === '1') {
-    loadClients();
-    loadParts();
-    loadTechnician();
-  } else {
-    document.getElementById('passwordScreen').style.display = 'flex';
-    setTimeout(()=>document.getElementById('passwordInput').focus(), 300);
-  }
+//function initAuth() {
+//  if (sessionStorage.getItem('assaor_auth') === '1') {
+//    loadClients();
+//    loadParts();
+//    loadTechnician();
+//  } else {
+//    document.getElementById('passwordScreen').style.display = 'flex';
+//    setTimeout(()=>document.getElementById('passwordInput').focus(), 300);
+//  }
 }
 
 initAuth();
