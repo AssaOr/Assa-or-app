@@ -412,41 +412,29 @@ let allClients=[], allParts=[];
 function setSyncDot(id,state){const d=document.getElementById(id);if(!d)return;d.className='sync-dot'+(state==='ok'?' ok':state==='loading'?' loading':state==='err'?' err':'');}
 
 async function sheetsGet(action){
+  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
   try {
-    const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.error) {
-      console.error("Apps Script error:", data.error);
-      return null;
-    }
-
-    return data;
-
+    const r = await fetch(SCRIPT_URL + '?action=' + action, {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    return await r.json();
   } catch (e) {
-    console.error("fetch error:", e);
+    console.error('Error fetching data:', e);
     return null;
   }
 }
 
 async function sheetsPost(params){
+  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
   try {
-    const url = SCRIPT_URL + "?" + new URLSearchParams(params).toString();
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.error) {
-      console.error("Apps Script error:", data.error);
-      return null;
-    }
-
-    return data;
-
+    const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    return await r.json();
   } catch (e) {
-    console.error("post error:", e);
+    console.error('Error posting data:', e);
     return null;
   }
 }
