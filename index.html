@@ -331,7 +331,7 @@ async function initDocNum() {
 
 initDocNum();
 document.getElementById('dateField').value = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
-document.getElementById('startTime').value = pad(now.getHours())+':'+pad(now.getMinutes());
+document.getElementById('endTime').value = pad(now.getHours())+':'+pad(now.getMinutes());
 
 document.getElementById('startTime').addEventListener('change', calcHours);
 document.getElementById('endTime').addEventListener('change', calcHours);
