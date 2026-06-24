@@ -2,7 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
 <link rel="manifest" href="manifest.json">
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -663,9 +664,99 @@ document.addEventListener('DOMContentLoaded', () => {
   updateTechDisplay();
 });
 window.addEventListener('resize', resizeCanvas);
+// הגדרת כתובת השרת שלך (גוגל אפס סקריפט)
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec'; 
 
-function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
-function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
+// 1. פונקציית תצוגה מקדימה והורדת PDF
+async function previewPDF() {
+  const { jsPDF } = window.jspdf;
+  // אלמנט המכולה של כל הטופס שאתה רוצה לצלם (שנה את ה-ID במידת הצורך ל-ID של הטופס שלך)
+  const element = document.getElementById('report-container') || document.body; 
+  
+  try {
+    // הפיכת ה-HTML לתמונת Canvas
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    
+    // יצירת מסמך PDF
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210; // רוחב דף A4 במ"מ
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // טיפול בריבוי עמודים במידה והדוח ארוך
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    // פתיחת ה-PDF בתצוגה מקדימה בדפדפן
+    window.open(pdf.output('bloburl'), '_blank');
+  } catch (error) {
+    console.error('שגיאה ביצירת תצוגה מקדימה:', error);
+    alert('נכשלה יצירת תצוגה מקדימה של ה-PDF');
+  }
+}
+
+// 2. פונקציית שליחת הדוח האמיתית (POST)
+function sendReport() {
+  // איסוף הנתונים מהשדות בטופס (ודא שה-ID תואמים לשדות אצלך ב-HTML)
+  const reportData = {
+    action: 'saveReport',
+    docNum: document.getElementById('docNum')?.value || '',
+    techName: document.getElementById('techName')?.value || '',
+    date: document.getElementById('date')?.value || '',
+    startTime: document.getElementById('startTime')?.value || '',
+    endTime: document.getElementById('endTime')?.value || '',
+    totalHours: document.getElementById('totalHours')?.value || '',
+    clientName: document.getElementById('clientName')?.value || '',
+    contactName: document.getElementById('contactName')?.value || '',
+    contactPhone: document.getElementById('contactPhone')?.value || '',
+    clientAddress: document.getElementById('clientAddress')?.value || '',
+    origin: document.getElementById('origin')?.value || '',
+    km: document.getElementById('km')?.value || '',
+    items: document.getElementById('items')?.value || '',
+    remarks: document.getElementById('remarks')?.value || '',
+    isNewClient: document.getElementById('isNewClient')?.checked ? '1' : '0'
+  };
+
+  // שינוי מצב הכפתור ויזואלית כדי שהטכנאי יבין שיש שליחה ברקע
+  const sendBtn = document.querySelector('button[onclick="sendReport()"]') || { innerText: '' };
+  const originalText = sendBtn.innerText;
+  sendBtn.innerText = 'שולח דוח... אנא המתן';
+  sendBtn.disabled = true;
+
+  // ביצוע פניית ה-POST האמיתית לשרת של גוגל
+  fetch(WEB_APP_URL, {
+    method: 'POST',
+    mode: 'no-cors', // חיוני כדי למנוע חסימות CORS מול גוגל בתוך אפליקציה
+    cache: 'no-cache',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reportData)
+  })
+  .then(() => {
+    alert('הדוח נשלח בהצלחה ונשמר במערכת!');
+    // כאן אפשר להוסיף איפוס לטופס במידת הצורך
+  })
+  .catch(err => {
+    console.error('שגיאת שליחה:', err);
+    alert('שגיאה בשליחת הדוח. בדוק את החיבור לאינטרנט.');
+  })
+  .finally(() => {
+    // החזרת הכפתור למצב רגיל
+    sendBtn.innerText = originalText;
+    sendBtn.disabled = false;
+  });
+}
+//function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
+//function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
 </script>
   <script>
   if ('serviceWorker' in navigator) {
