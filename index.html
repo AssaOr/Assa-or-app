@@ -288,11 +288,28 @@
 
 <script>
 // ============================================================
+// ה-Web App URL המעודכן והעובד שלך מול גוגל שיטס
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec';
 // ============================================================
 
 const pad = n => String(n).padStart(2,'0');
 const now = new Date();
+
+// פונקציית תשתית שליפה מקורית שעבדה מצוין
+async function sheetsGet(action, params = {}) {
+  const query = new URLSearchParams({ action, ...params }).toString();
+  const response = await fetch(`${SCRIPT_URL}?${query}`);
+  if (!response.ok) throw new Error('Status: ' + response.status);
+  return await response.json();
+}
+
+async function sheetsPost(params) {
+  if(!SCRIPT_URL) return null;
+  try {
+    const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString());
+    return await r.json();
+  } catch { return null; }
+}
 
 async function initDocNum() {
   const CURRENT_KEY = 'assaor_current_doc';
@@ -392,99 +409,104 @@ async function calcKmFromAddresses() {
   }
 }
 
-let allClients=[], allParts=[];
-function setSyncDot(id,state){const d=document.getElementById(id);if(!d)return;d.className='sync-dot'+(state==='ok'?' ok':state==='loading'?' loading':state==='err'?' err':'');}
+let ALL_CLIENTS = [];
+let ALL_PARTS = [];
 
-async function sheetsGet(action){
-  if(!SCRIPT_URL) return null;
-  try{
-    const r=await fetch(SCRIPT_URL+'?action='+action, { method: 'GET', mode: 'cors' });
-    return await r.json();
-  }catch(e){
+// שחזור מדויק של מנגנון טעינת הנתונים המקורי שלך
+async function loadClients() {
+  const dot = document.getElementById('clientSyncDot');
+  const txt = document.getElementById('clientSyncText');
+  if (dot) dot.className = 'sync-dot loading';
+  if (txt) txt.textContent = 'טוען לקוחות...';
+  
+  try {
+    const data = await sheetsGet('getClients');
+    if (Array.isArray(data)) {
+      ALL_CLIENTS = data;
+      if (dot) dot.className = 'sync-dot ok';
+      if (txt) txt.textContent = 'הלקוחות מסונכרנים';
+    } else {
+      if (dot) dot.className = 'sync-dot err';
+      if (txt) txt.textContent = 'שגיאת פורמט נתונים';
+    }
+  } catch (e) {
     console.error(e);
-    return null;
+    if (dot) dot.className = 'sync-dot err';
+    if (txt) txt.textContent = 'שגיאת סנכרון';
   }
 }
-async function sheetsPost(params){
-  if(!SCRIPT_URL) return null;
-  try{const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params).toString());return await r.json();}catch{return null;}
+
+async function loadParts() {
+  const dot = document.getElementById('partsSyncDot');
+  const txt = document.getElementById('partsSyncText');
+  if (dot) dot.className = 'sync-dot loading';
+  if (txt) txt.textContent = 'טוען חלקים...';
+  
+  try {
+    const data = await sheetsGet('getParts');
+    if (Array.isArray(data)) {
+      ALL_PARTS = data;
+      if (dot) dot.className = 'sync-dot ok';
+      if (txt) txt.textContent = 'מחירון חלקים מעודכן';
+    } else {
+      if (dot) dot.className = 'sync-dot err';
+      if (txt) txt.textContent = 'שגיאה בטעינת חלקים';
+    }
+  } catch (e) {
+    console.error(e);
+    if (dot) dot.className = 'sync-dot err';
+    if (txt) txt.textContent = 'שגיאה בסנכרון חלקים';
+  }
 }
 
-async function loadClients(){
-  setSyncDot('clientSyncDot','loading');
-  document.getElementById('clientSyncText').textContent='טוען לקוחות...';
-  const data=await sheetsGet('getClients');
-  if(data && data.clients){
-    allClients=data.clients;
-    setSyncDot('clientSyncDot','ok');
-    document.getElementById('clientSyncText').textContent=allClients.length+' לקוחות נטענו';
+// שחזור מדויק של מנגנון סינון ובחירת לקוח מהגרסה העובדת
+function filterClients(val) {
+  const dropdown = document.getElementById('clientDropdown');
+  if (!dropdown) return;
+  
+  if (!val || val.trim() === '') {
+    dropdown.style.display = 'none';
+    return;
+  }
+  
+  const search = val.toLowerCase();
+  const matches = ALL_CLIENTS.filter(c => c.name && c.name.toLowerCase().includes(search));
+  
+  dropdown.innerHTML = '';
+  
+  if (matches.length === 0) {
+    const div = document.createElement('div');
+    div.className = 'autocomplete-item new-client';
+    div.innerHTML = `<span class="new-badge">חדש</span> ${val.trim()}`;
+    div.onclick = () => {
+      document.getElementById('clientName').value = val.trim();
+      dropdown.style.display = 'none';
+    };
+    dropdown.appendChild(div);
   } else {
-    setSyncDot('clientSyncDot','err');
-    document.getElementById('clientSyncText').textContent='שגיאת טעינה';
+    matches.forEach(client => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      div.innerHTML = `<strong>${client.name}</strong>${client.address ? '<span style="font-size:11px;color:#7a8599;display:block;">'+client.address+'</span>':''}`;
+      div.onclick = () => {
+        document.getElementById('clientName').value = client.name || '';
+        document.getElementById('clientAddress').value = client.address || '';
+        document.getElementById('contactName').value = client.contact || '';
+        document.getElementById('contactPhone').value = client.phone || '';
+        dropdown.style.display = 'none';
+        onAddressChange();
+      };
+      dropdown.appendChild(div);
+    });
   }
-}
-async function loadParts(){
-  setSyncDot('partsSyncDot','loading');
-  document.getElementById('partsSyncText').textContent='טוען חלקים...';
-  const data=await sheetsGet('getParts');
-  if(data&&data.parts){allParts=data.parts;setSyncDot('partsSyncDot','ok');document.getElementById('partsSyncText').textContent=allParts.length+' חלקים נטענו';}
-  else{setSyncDot('partsSyncDot','err');document.getElementById('partsSyncText').textContent='שגיאה';}
+  dropdown.style.display = 'block';
 }
 
-function getClientNames(){
-  return allClients.map(c=> (c && typeof c==='object') ? c.name : c).filter(Boolean);
-}
-
-function fillClientFields(client){
-  if(client && typeof client==='object'){
-    if(client.address) document.getElementById('clientAddress').value = client.address;
-    if(client.contact) document.getElementById('contactName').value   = client.contact;
-    if(client.phone) document.getElementById('contactPhone').value  = client.phone;
-    onAddressChange();
+document.addEventListener('click', e => {
+  if (!e.target.closest('#clientName') && !e.target.closest('#clientDropdown')) {
+    document.getElementById('clientDropdown').style.display = 'none';
   }
-}
-
-function filterClients(val){
-  const dd=document.getElementById('clientDropdown');
-  if(!dd) return;
-  const names=getClientNames();
-  
-  const filtered = allClients.filter(c => {
-    const name = (c && typeof c === 'object') ? c.name : c;
-    return name && name.toLowerCase().includes(val.toLowerCase());
-  });
-  
-  const showNew = val.trim() && !names.map(n=>n.toLowerCase()).includes(val.trim().toLowerCase());
-  if(filtered.length===0 && !showNew){dd.style.display='none';return;}
-  
-  dd.innerHTML='';
-  filtered.slice(0,8).forEach(c=>{
-    const name = (c && typeof c === 'object') ? c.name : c;
-    const address = (c && typeof c === 'object') ? c.address : '';
-    const div=document.createElement('div');
-    div.className='autocomplete-item';
-    div.innerHTML=`<strong>${name}</strong>${address ? '<span style="font-size:11px;color:#7a8599;display:block;">'+address+'</span>':''}`;
-    div.onclick=()=>{
-      document.getElementById('clientName').value=name;
-      dd.style.display='none';
-      fillClientFields(c);
-    };
-    dd.appendChild(div);
-  });
-  
-  if(showNew){
-    const div=document.createElement('div');
-    div.className='autocomplete-item new-client';
-    div.innerHTML='<span class="new-badge">חדש</span> '+val.trim();
-    div.onclick=()=>{
-      document.getElementById('clientName').value=val.trim();
-      dd.style.display='none';
-    };
-    dd.appendChild(div);
-  }
-  dd.style.display='block';
-}
-document.addEventListener('click',e=>{if(!e.target.closest('#clientName')&&!e.target.closest('#clientDropdown'))document.getElementById('clientDropdown').style.display='none';});
+});
 
 function addRow(){
   const tbody=document.getElementById('tableBody');
@@ -512,7 +534,7 @@ document.addEventListener('change', e => { if (e.target.id === 'vatRate') update
 
 function filterParts(input,rid){
   const val=input.value,dd=document.getElementById('pd_'+rid);if(!dd)return;
-  const filtered=allParts.filter(p=>p.toLowerCase().includes(val.toLowerCase()));
+  const filtered=ALL_PARTS.filter(p=>p.toLowerCase().includes(val.toLowerCase()));
   if(filtered.length===0){dd.style.display='none';return;}
   dd.innerHTML='';
   filtered.slice(0,8).forEach(p=>{const div=document.createElement('div');div.className='part-item';div.textContent=p;div.onclick=()=>{input.value=p;dd.style.display='none';};dd.appendChild(div);});
@@ -609,7 +631,27 @@ async function sendReport(){
   try{
     const items=[];
     document.querySelectorAll('#tableBody tr').forEach(r=>{const q=r.querySelector('.qty')?.value||'',d=r.querySelector('.desc')?.value||'',p=r.querySelector('.price')?.value||'';if(q||d)items.push([q+'x',d,p?'₪'+p:''].filter(Boolean).join(' '));});
-    await sheetsPost({action:'saveReport',techName:localStorage.getItem('tech_name')||'',isNewClient:getClientNames().map(n=>n.toLowerCase()).includes(document.getElementById('clientName').value.trim().toLowerCase())?'0':'1',origin:document.getElementById('originAddress').value||'',docNum:document.getElementById('docNum').value,date:document.getElementById('dateField').value,startTime:document.getElementById('startTime').value,endTime:document.getElementById('endTime').value,totalHours:document.getElementById('totalHours').value,clientName:document.getElementById('clientName').value,contactName:document.getElementById('contactName').value,contactPhone:document.getElementById('contactPhone').value,clientAddress:document.getElementById('clientAddress').value,km:document.getElementById('kmField').value ? document.getElementById('kmField').value+' ק"מ' : '',items:items.join(' | '),remarks:document.getElementById('remarks').value});
+    
+    const isNew = ALL_CLIENTS.some(c => c.name && c.name.toLowerCase() === document.getElementById('clientName').value.trim().toLowerCase()) ? '0' : '1';
+    
+    await sheetsPost({
+      action:'saveReport',
+      techName:localStorage.getItem('tech_name')||'',
+      isNewClient: isNew,
+      origin:document.getElementById('originAddress').value||'',
+      docNum:document.getElementById('docNum').value,
+      date:document.getElementById('dateField').value,
+      startTime:document.getElementById('startTime').value,
+      endTime:document.getElementById('endTime').value,
+      totalHours:document.getElementById('totalHours').value,
+      clientName:document.getElementById('clientName').value,
+      contactName:document.getElementById('contactName').value,
+      contactPhone:document.getElementById('contactPhone').value,
+      clientAddress:document.getElementById('clientAddress').value,
+      km:document.getElementById('kmField').value ? document.getElementById('kmField').value+' ק"מ' : '',
+      items:items.join(' | '),
+      remarks:document.getElementById('remarks').value
+    });
     const pdf=await generatePDF();
     const filename='assaor_'+document.getElementById('docNum').value+'.pdf';
     const blob=pdf.output('blob');
