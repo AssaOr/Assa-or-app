@@ -312,7 +312,7 @@ async function initDocNum() {
   document.getElementById('docNumber').textContent = 'מס׳ ' + res.docNum;
   document.getElementById('docNum').value = res.docNum;
 
-  localStorage.setItem('currentDocNum', res.docNum);
+
 }
 
     async function initDocNum() {
@@ -326,23 +326,14 @@ async function initDocNum() {
     document.getElementById('docNumber').textContent = 'מס׳ ' + res.docNum;
     document.getElementById('docNum').value = res.docNum;
 
-    localStorage.setItem('currentDocNum', res.docNum);
-
+  
   } catch (e) {
     console.error(e);
     document.getElementById('docNumber').textContent = 'שגיאה במספר מסמך';
   }
 }
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('currentDocNum');
-
-  if (saved) {
-    currentDocNum = saved;
-    document.getElementById('docNumber').textContent = 'מס׳ ' + saved;
-    document.getElementById('docNum').value = saved;
-  } else {
-    initDocNum(); // רק אם אין מספר שמור
-  }
+  
 
   resizeCanvas();
   updateTechDisplay();
@@ -573,7 +564,11 @@ function filterParts(input,rid){
   dd.style.display='block';
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.desc-col'))document.querySelectorAll('.part-dropdown').forEach(d=>d.style.display='none');});
-
+document.addEventListener('DOMContentLoaded', () => {
+  initDocNum();
+  resizeCanvas();
+  updateTechDisplay();
+});
 // יצירת שורות ראשוניות בטבלה
 addRow(); addRow(); addRow();
 
