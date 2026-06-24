@@ -654,8 +654,73 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 window.addEventListener('resize', resizeCanvas);
 
-function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
-function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
+async function buildPDF() {
+  const { jsPDF } = window.jspdf;
+
+  const template = document.getElementById('pdfTemplate');
+
+  // ודא שהתוכן מוכן
+  template.style.display = 'block';
+
+  const canvas = await html2canvas(template, {
+    scale: 2,
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * pageWidth / canvas.width;
+
+  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+  template.style.display = 'none';
+
+  return pdf;
+}
+
+async function previewPDF() {
+  const pdf = await buildPDF();
+  const blob = pdf.output('blob');
+  const url = URL.createObjectURL(blob);
+
+  // פתיחה בטאב חדש (תצוגה מקדימה)
+  window.open(url, '_blank');
+}
+
+async function sendReport() {
+  const pdf = await buildPDF();
+  const blob = pdf.output('blob');
+
+  const file = new File([blob], 'service-report.pdf', {
+    type: 'application/pdf'
+  });
+
+  // ניסיון לפתוח Share Sheet בנייד
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'דוח שירות',
+        text: 'דוח שירות אסא-אור'
+      });
+      return;
+    } catch (err) {
+      console.log('Share cancelled or failed', err);
+    }
+  }
+
+  // fallback: הורדה
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'service-report.pdf';
+  a.click();
+}
 </script>
 </body>
 </html>
