@@ -2,19 +2,19 @@
 <html lang="he" dir="rtl">
 <head>
 <link rel="manifest" href="manifest.json">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>אסא-אור | דוח שירות</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root {
     --cyan: #00b4d8; --navy: #1a237e; --pink: #e91e8c;
-    --gray: #f5f7fa; --border: #dde3ec;
-    --text: #1a1a2e;
+    --gray: #f5f7fa; --border: #dde3ec; --text: #1a1a2e;
     --muted: #7a8599; --white: #ffffff; --radius: 12px;
     --shadow: 0 2px 16px rgba(0,0,0,0.08);
   }
@@ -52,6 +52,9 @@
   .sync-dot.ok { background: #4caf50; }
   .sync-dot.loading { background: var(--cyan); animation: pulse 1s infinite; }
   .sync-dot.err { background: var(--pink); }
+  .gps-dot.ok { background: #4caf50; }
+  .gps-dot.loading { background: var(--cyan); animation: pulse 1s infinite; }
+  .gps-dot.err { background: var(--pink); }
 
   /* Table */
   .service-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -75,21 +78,23 @@
 
   .gps-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin-top: 6px; }
   .gps-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
-  .gps-dot.ok { background: #4caf50; }
-  .gps-dot.loading { background: var(--cyan); animation: pulse 1s infinite; }
-  .gps-dot.err { background: var(--pink); }
+  .gps-dot.active { background: #4caf50; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  .status-box { background: var(--navy); color: var(--white); border-radius: 8px; padding: 8px 14px; font-size: 13px; text-align: center; margin-top: 10px; min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow); }
+  .status-box { background: var(--navy); color: var(--white); border-radius: 8px; padding: 8px 14px; font-size: 13px; text-align: center; margin-top: 10px; min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn-row { display: flex; gap: 10px; margin: 14px 14px 0; }
   .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
   .btn-primary { background: linear-gradient(135deg, var(--pink), #c2185b); color: var(--white); box-shadow: 0 4px 16px rgba(233,30,140,0.35); }
   .btn-secondary { background: linear-gradient(135deg, var(--cyan), var(--navy)); color: var(--white); box-shadow: 0 4px 16px rgba(0,180,216,0.3); }
   .btn:active { transform: scale(0.97); }
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* PDF Template */
   #pdfTemplate { position: fixed; top: -9999px; left: -9999px; width: 794px; background: white; font-family: Arial, sans-serif; direction: rtl; padding: 40px 50px; color: #111; }
   .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 3px solid #1a237e; padding-bottom: 16px; }
+  .pdf-contact { font-size: 12px; color: #555; text-align: left; direction: ltr; line-height: 1.7; }
+
   .pdf-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
   .pdf-meta-item { border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px; }
   .pdf-meta-item label { font-size: 10px; color: #888; display: block; margin-bottom: 2px; }
@@ -98,7 +103,11 @@
   .pdf-table th { background: #1a237e; color: white; padding: 8px; text-align: center; font-size: 12px; }
   .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
   .pdf-table .desc-col { text-align: right; }
+  .pdf-sig-section { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .pdf-sig-box { text-align: center; }
+  .pdf-sig-box label { font-size: 11px; color: #888; display: block; margin-bottom: 8px; }
   .pdf-sig-img { width: 200px; height: 80px; border-bottom: 1px solid #111; }
+  .pdf-confirm { font-size: 11px; color: #555; max-width: 300px; line-height: 1.6; }
   .pdf-footer { margin-top: 20px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 10px; }
 
   /* Tech Strip Design */
@@ -114,6 +123,10 @@
   %22theme_color%22: %22#1a237e%22,
   %22icons%22: [{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a237e'/><text y='.9em' font-size='80' x='10'>📋</text></svg>%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22}]
 }">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="אסא-אור">
+<meta name="theme-color" content="#1a237e">
 </head>
 <body>
 
@@ -135,7 +148,7 @@
   <div class="card-title">פרטי קריאה</div>
   <div class="field-row">
     <div class="field"><label>תאריך</label><input type="date" id="dateField"></div>
-    <div class="field"><label>מס׳ מסמך</label><input type="text" id="docNum" placeholder="000125"></div>
+    <div class="field"><label>מס׳ מסמך</label><input type="text" id="docNum" placeholder="S25-001"></div>
   </div>
   <div class="field-row">
     <div class="field"><label>שעת התחלה</label><input type="time" id="startTime"></div>
@@ -231,7 +244,7 @@
 </div>
 
 <div id="pdfTemplate">
-  <div class="pdf-header">
+  <div class="pdf-header" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:3px solid #1a237e;padding-bottom:14px;">
     <div style="text-align:right;direction:rtl;">
       <img src="logo.png" alt="אסא-אור" style="height:64px;object-fit:contain;display:block;margin-right:0;margin-left:auto;">
       <div style="font-size:14px;font-weight:900;color:#1a237e;margin-top:6px;">תעודת משלוח / שרות &nbsp;|&nbsp; <span id="pdf-docNo"></span></div>
@@ -296,17 +309,11 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57
 const pad = n => String(n).padStart(2,'0');
 const now = new Date();
 
-// כפיית אתחול ל-000125 במידה וזו הפעלה ראשונה ללא היסטוריה
-if (!localStorage.getItem('assaor_local_counter')) {
-  localStorage.setItem('assaor_local_counter', '124');
-}
-
 async function initDocNum() {
   const CURRENT_KEY = 'assaor_current_doc';
   const SENT_KEY    = 'assaor_sent_docs';
   const sentDocs = JSON.parse(localStorage.getItem(SENT_KEY) || '[]');
   const current  = localStorage.getItem(CURRENT_KEY);
-  
   if (current && !sentDocs.includes(current)) {
     document.getElementById('docNumber').textContent = 'מס׳ ' + current;
     document.getElementById('docNum').value = current;
@@ -321,10 +328,9 @@ async function initDocNum() {
       return;
     }
   } catch(e) {}
-  
-  let c = parseInt(localStorage.getItem('assaor_local_counter') || '124') + 1;
+  let c = parseInt(localStorage.getItem('assaor_local_counter') || '0') + 1;
   localStorage.setItem('assaor_local_counter', c);
-  const id = String(c).padStart(6, '0'); // מייצר בדיוקפורמט 000125
+  const id = 'L' + String(c).padStart(5, '0');
   localStorage.setItem(CURRENT_KEY, id);
   document.getElementById('docNumber').textContent = 'מס׳ ' + id;
   document.getElementById('docNum').value = id;
@@ -382,6 +388,7 @@ async function calcKmFromAddresses() {
     if (!client) { document.getElementById('gpsStatus').textContent = '⚠ לא נמצאה: ' + clientVal; document.getElementById('gpsDot').className = 'gps-dot err'; return; }
 
     document.getElementById('gpsStatus').textContent = 'מחשב מסלול...';
+
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${client.lng},${client.lat}?overview=false`;
     const res = await fetch(osrmUrl);
     const data = await res.json();
@@ -416,7 +423,10 @@ function setSyncDot(id,state){const d=document.getElementById(id);if(!d)return;d
 async function sheetsGet(action){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
   try {
-    const r = await fetch(SCRIPT_URL + '?action=' + action, { method: 'GET', redirect: 'follow' });
+    const r = await fetch(SCRIPT_URL + '?action=' + action, {
+      method: 'GET',
+      redirect: 'follow'
+    });
     return await r.json();
   } catch (e) {
     console.error('Error fetching data:', e);
@@ -427,7 +437,10 @@ async function sheetsGet(action){
 async function sheetsPost(params){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_WEBAPP_URL_HERE') return null;
   try {
-    const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), { method: 'GET', redirect: 'follow' });
+    const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params).toString(), {
+      method: 'GET',
+      redirect: 'follow'
+    });
     return await r.json();
   } catch (e) {
     console.error('Error posting data:', e);
@@ -463,6 +476,7 @@ async function loadParts(){
   }
 }
 
+// טעינת הנתונים בפועל
 loadClients();
 loadParts();
 
@@ -564,6 +578,7 @@ function openTechSettings() {
   
   const name = prompt('הכנס שם טכנאי:', currentName);
   if (name === null) return;
+  
   const origin = prompt('הכנס כתובת מוצא לחישוב ק"מ:', currentOrigin);
   if (origin === null) return;
   
@@ -607,4 +622,57 @@ function getPos(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
-function startSign
+function startSign(e) {
+  signing = true;
+  hasSig = true;
+  document.getElementById('sigLabel').style.display = 'none';
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  e.preventDefault();
+}
+
+function moveSign(e) {
+  if (!signing) return;
+  const pos = getPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#1a237e';
+  ctx.stroke();
+  e.preventDefault();
+}
+
+function stopSign() { signing = false; }
+function clearSig() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasSig = false;
+  document.getElementById('sigLabel').style.display = 'block';
+}
+
+canvas.addEventListener('mousedown', startSign);
+canvas.addEventListener('mousemove', moveSign);
+canvas.addEventListener('mouseup', stopSign);
+canvas.addEventListener('mouseleave', stopSign);
+canvas.addEventListener('touchstart', startSign);
+canvas.addEventListener('touchmove', moveSign);
+canvas.addEventListener('touchend', stopSign);
+
+// טעינה ראשונית של הגדרות עמוד וטכנאי
+document.addEventListener('DOMContentLoaded', () => {
+  resizeCanvas();
+  updateTechDisplay();
+});
+window.addEventListener('resize', resizeCanvas);
+
+function previewPDF() { alert('תצוגה מקדימה תיבנה באמצעות html2canvas ו-jspdf כמתוכנן בקוד הבא שלך.'); }
+function sendReport() { alert('שליחת הדוח תתבצע באמצעות פונקציית ה-Post.'); }
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('serviceWorker.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch((err) => console.log('Service Worker Failed', err));
+  }
+</script>
+</body>
+</html>
