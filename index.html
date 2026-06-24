@@ -86,44 +86,48 @@
   .btn:active { transform: scale(0.97); }
 
   /* ======================================================== */
-  /* עיצוב ה-PDF הנסתר - מבוסס על הסגנון המצומצם והנקי של L0001 */
+  /* עיצוב ה-PDF הנסתר - העתק מדויק וקומפקטי של L0001           */
   /* ======================================================== */
   #pdfTemplate { position: fixed; top: -9999px; left: -9999px; width: 794px; background: white; font-family: Arial, sans-serif; direction: rtl; padding: 30px 45px; color: #111; }
   
-  .pdf-top-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1a237e; padding-bottom: 12px; margin-bottom: 15px; }
+  .pdf-top-row { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a237e; padding-bottom: 10px; margin-bottom: 15px; }
   .pdf-logo-area { text-align: right; }
   .pdf-logo-img { height: 45px; object-fit: contain; display: block; margin-left: auto; margin-right: 0; }
   .pdf-company-info { font-size: 11px; color: #555; margin-top: 3px; }
-  .pdf-title-area { text-align: left; }
-  .pdf-main-title { font-size: 18px; font-weight: bold; color: #1a237e; }
-  .pdf-hp-num { font-size: 12px; font-weight: bold; margin-top: 2px; color: #333; }
+  
+  /* כותרת מרכזית + מספר תעודה מתחתיה בול כמו ב-L0001 */
+  .pdf-title-area { text-align: center; flex-grow: 1; margin-right: -40px; }
+  .pdf-main-title { font-size: 20px; font-weight: bold; color: #1a237e; letter-spacing: 0.5px; }
+  .pdf-doc-num-line { font-size: 14px; font-weight: bold; color: #e91e8c; margin-top: 4px; }
+  
+  .pdf-hp-area { text-align: left; font-size: 11px; color: #333; font-weight: bold; padding-top: 5px; }
 
-  /* בלוק המידע הקומפקטי כמו בדוגמה המקורית */
-  .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: x; row-gap: 5px; column-gap: 20px; margin-bottom: 15px; font-size: 12px; line-height: 1.4; border: 1px solid #eee; padding: 10px; border-radius: 6px; background: #fdfdfd; }
-  .pdf-info-item { display: flex; }
-  .pdf-info-item strong { min-width: 85px; color: #555; font-weight: 600; }
-  .pdf-info-item span { color: #000; font-weight: 700; }
+  /* גריד המידע הקומפקטי והרוחבי של L0001 */
+  .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 5px; column-gap: 30px; margin-bottom: 15px; font-size: 12px; line-height: 1.4; border: 1px solid #ddd; padding: 10px 14px; border-radius: 4px; background: #fafafa; }
+  .pdf-info-item { display: flex; align-items: center; }
+  .pdf-info-item strong { min-width: 75px; color: #444; font-weight: bold; }
+  .pdf-info-item span { color: #000; font-weight: 500; }
 
   .pdf-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
-  .pdf-table th { background: #1a237e; color: white; padding: 6px 8px; text-align: center; font-weight: bold; }
+  .pdf-table th { background: #1a237e; color: white; padding: 6px 8px; text-align: center; font-weight: bold; border: 1px solid #1a237e; }
   .pdf-table td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; }
   .pdf-table .desc-col { text-align: right; padding-right: 12px; }
   
-  .pdf-remarks-box { margin-top: 8px; font-size: 12px; color: #333; background: #fdfdfd; border: 1px solid #eee; padding: 8px 12px; border-radius: 4px; }
+  .pdf-remarks-box { margin-top: 8px; font-size: 12px; color: #333; background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 4px; }
 
-  .pdf-bottom-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; gap: 40px; }
+  .pdf-bottom-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 25px; gap: 40px; }
   .pdf-sig-block { flex: 1; text-align: right; }
-  .pdf-sig-text-info { font-size: 11px; color: #333; line-height: 1.5; margin-bottom: 8px; }
+  .pdf-sig-text-info { font-size: 11px; color: #222; line-height: 1.5; margin-bottom: 6px; }
   .pdf-sig-wrap { border-bottom: 2px solid #111; width: 220px; height: 65px; position: relative; margin-top: 5px; }
   .pdf-sig-img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .pdf-sig-caption { font-size: 10px; color: #777; margin-top: 4px; }
+  .pdf-sig-caption { font-size: 10px; color: #666; margin-top: 4px; font-weight: bold; }
 
   .pdf-totals-block { min-width: 220px; }
   .pdf-totals-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .pdf-totals-table td { border: 1px solid #ddd; padding: 6px 10px; }
   .pdf-totals-table .total-row { background: #1a237e; color: white; font-weight: bold; }
   
-  .pdf-footer { text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 8px; margin-top: 25px; }
+  .pdf-footer { text-align: center; font-size: 10px; color: #777; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 30px; font-weight: 500; }
 </style>
 
 <link rel="manifest" href="data:application/json,{
@@ -251,33 +255,41 @@
   <button class="btn btn-primary" onclick="sendReport()">📤 שלח דוח</button>
 </div>
 
+<!-- ========================================== -->
+<!-- תבנית ה-PDF הנסתרת המעודכנת — בול כמו L0001   -->
+<!-- ========================================== -->
 <div id="pdfTemplate">
   <div class="pdf-top-row">
     <div class="pdf-logo-area">
       <img src="logo.png" alt="ASSA OR" class="pdf-logo-img">
-      <div class="pdf-company-info">אסא-אור טכנולוגיות בע"מ</div>
+      <div class="pdf-company-info">office@assaor.com | www.assaor.com</div>
     </div>
+    
+    <!-- כותרת ראשית ומספר התעודה מתחתיה במרכז — בול כמו ב-L0001 -->
     <div class="pdf-title-area">
       <div class="pdf-main-title">תעודת משלוח / שרות</div>
-      <div class="pdf-hp-num">ח.פ. 516828753</div>
+      <div class="pdf-doc-num-line">מס׳ <span id="pdf-docNo"></span></div>
+    </div>
+    
+    <div class="pdf-hp-area">
+      ח.פ. 516828753
     </div>
   </div>
 
   <div class="pdf-info-grid">
     <div class="pdf-info-item"><strong>תאריך:</strong> <span id="pdf-date"></span></div>
-    <div class="pdf-info-item"><strong>מסמך מס׳:</strong> <span id="pdf-docNo" style="color:#e91e8c;"></span></div>
-    
-    <div class="pdf-info-item"><strong>לכבוד:</strong> <span id="pdf-client"></span></div>
     <div class="pdf-info-item"><strong>שעת התחלה:</strong> <span id="pdf-start"></span></div>
     
-    <div class="pdf-info-item"><strong>איש קשר:</strong> <span id="pdf-contact"></span></div>
+    <div class="pdf-info-item"><strong>לכבוד:</strong> <span id="pdf-client"></span></div>
     <div class="pdf-info-item"><strong>שעת סיום:</strong> <span id="pdf-end"></span></div>
     
-    <div class="pdf-info-item"><strong>טלפון:</strong> <span id="pdf-phone"></span></div>
+    <div class="pdf-info-item"><strong>איש קשר:</strong> <span id="pdf-contact"></span></div>
     <div class="pdf-info-item"><strong>שעות עבודה:</strong> <span id="pdf-hours"></span></div>
     
-    <div class="pdf-info-item"><strong>כתובת:</strong> <span id="pdf-address"></span></div>
+    <div class="pdf-info-item"><strong>טלפון:</strong> <span id="pdf-phone"></span></div>
     <div class="pdf-info-item"><strong>ק"מ נסיעה:</strong> <span id="pdf-km"></span></div>
+    
+    <div class="pdf-info-item" style="grid-column: span 2;"><strong>כתובת:</strong> <span id="pdf-address"></span></div>
   </div>
 
   <table class="pdf-table">
@@ -296,6 +308,7 @@
   </div>
 
   <div class="pdf-bottom-section">
+    <!-- חתימה ממוקמת בצד ימין -->
     <div class="pdf-sig-block">
       <div class="pdf-sig-text-info">
         הריני מאשר כי בדקתי את הסחורה<br>וקיבלתי אותה במלואה ובמצב תקין
@@ -306,6 +319,7 @@
       <div class="pdf-sig-caption">חתימת לקוח</div>
     </div>
 
+    <!-- סיכומים משמאל -->
     <div class="pdf-totals-block">
       <table class="pdf-totals-table">
         <tr>
@@ -325,7 +339,7 @@
   </div>
 
   <div class="pdf-footer">
-    051-5717314 &nbsp;|&nbsp; office@assaor.com &nbsp;|&nbsp; www.assaor.com
+    051-5717314 &nbsp;|&nbsp; office@assaor.com &nbsp;|&nbsp; www.assaor.com &nbsp;|&nbsp; אסא-אור טכנולוגיות בע"מ
   </div>
 </div>
 
