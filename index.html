@@ -653,36 +653,71 @@ document.addEventListener('DOMContentLoaded', () => {
   updateTechDisplay();
 });
 window.addEventListener('resize', resizeCanvas);
+function fillPdfFields() {
+  document.getElementById('pdf-docNo').textContent = document.getElementById('docNum').value;
+  document.getElementById('pdf-date').textContent = document.getElementById('dateField').value;
+  document.getElementById('pdf-start').textContent = document.getElementById('startTime').value;
+  document.getElementById('pdf-end').textContent = document.getElementById('endTime').value;
 
+  document.getElementById('pdf-client').textContent = document.getElementById('clientName').value;
+  document.getElementById('pdf-contact').textContent = document.getElementById('contactName').value;
+  document.getElementById('pdf-phone').textContent = document.getElementById('contactPhone').value;
+  document.getElementById('pdf-address').textContent = document.getElementById('clientAddress').value;
+
+  document.getElementById('pdf-hours').textContent = document.getElementById('totalHours').value;
+  document.getElementById('pdf-km').textContent = document.getElementById('kmField').value;
+
+  document.getElementById('pdf-remarks').textContent = document.getElementById('remarks').value;
+
+  // טבלה
+  const body = document.getElementById('pdf-tableBody');
+  body.innerHTML = '';
+
+  document.querySelectorAll('#tableBody tr').forEach(row => {
+    const qty = row.querySelector('.qty')?.value || '';
+    const desc = row.querySelector('.desc')?.value || '';
+    const price = row.querySelector('.price')?.value || '';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${qty}</td>
+      <td style="text-align:right">${desc}</td>
+      <td>${price}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  // חתימה
+  const sigImg = document.getElementById('sigCanvas').toDataURL();
+  document.getElementById('pdf-sig').src = sigImg;
+}
 async function buildPDF() {
   const { jsPDF } = window.jspdf;
 
-  const template = document.getElementById('pdfTemplate');
+  fillPdfFields(); // 👈 חייב להיות כאן למעלה
 
-  // ודא שהתוכן מוכן
+  const template = document.getElementById('pdfTemplate');
   template.style.display = 'block';
 
+  await new Promise(r => setTimeout(r, 300));
+
   const canvas = await html2canvas(template, {
-    scale: 2,
-    useCORS: true
+    scale: 3,
+    useCORS: true,
+    backgroundColor: '#fff'
   });
 
-  const imgData = canvas.toDataURL('image/png');
-
   const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = 210;
-  const pageHeight = 297;
 
-  const imgWidth = pageWidth;
+  const pageWidth = 210;
   const imgHeight = canvas.height * pageWidth / canvas.width;
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, imgHeight);
 
   template.style.display = 'none';
 
   return pdf;
 }
-
 async function previewPDF() {
   const pdf = await buildPDF();
   const blob = pdf.output('blob');
