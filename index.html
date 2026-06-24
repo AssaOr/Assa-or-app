@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>אסא-אור | דוח שירות</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: Arial; margin:0; padding:0; }
-.card { padding:15px; margin:10px; background:#fff; border-radius:10px; }
-.btn { padding:12px; border:0; border-radius:8px; cursor:pointer; }
-.btn-primary { background:#e91e8c; color:#fff; }
-.btn-secondary { background:#1a237e; color:#fff; }
+body{font-family:Arial;background:#f5f7fa;margin:0}
+.card{background:#fff;margin:12px;padding:12px;border-radius:10px}
+input,button{padding:10px;width:100%;margin:5px 0;font-size:14px}
+button{border:0;border-radius:8px;cursor:pointer}
+.primary{background:#e91e8c;color:#fff}
+.secondary{background:#1a237e;color:#fff}
 
-#pdfTemplate { position:fixed; left:0; top:0; opacity:0; width:794px; background:#fff; }
+#pdf{position:fixed;left:-9999px;top:-9999px;width:800px;background:#fff;padding:20px}
 
-.sig-box { border:1px solid #ccc; height:140px; position:relative; }
-canvas { width:100%; height:140px; }
-
+.sig{border:1px solid #ccc;height:140px;position:relative}
+canvas{width:100%;height:140px}
+#hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#aaa}
 </style>
 </head>
 
@@ -28,44 +29,47 @@ canvas { width:100%; height:140px; }
 <div class="card">
 <h3>דוח שירות</h3>
 
-<input id="clientName" placeholder="לקוח"><br><br>
-<input id="docNum" placeholder="מספר דוח"><br><br>
+<input id="clientName" placeholder="שם לקוח">
+<input id="docNum" placeholder="מספר מסמך">
 
-<button class="btn btn-secondary" onclick="previewPDF()">תצוגה</button>
-<button class="btn btn-primary" onclick="sendReport()">שליחה</button>
+<button class="secondary" onclick="previewPDF()">תצוגה מקדימה</button>
+<button class="primary" onclick="sendPDF()">שליחה</button>
 </div>
 
-<div class="card sig-box">
-<canvas id="sigCanvas"></canvas>
-<div id="sigLabel" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#aaa;">חתום כאן</div>
-<button onclick="clearSig()" style="position:absolute;top:5px;left:5px;">נקה</button>
+<div class="card sig">
+<canvas id="c"></canvas>
+<div id="hint">חתום כאן</div>
+<button onclick="clearSig()" style="position:absolute;top:5px;left:5px;width:auto">נקה</button>
 </div>
 
-<div id="pdfTemplate">
+<!-- PDF -->
+<div id="pdf">
   <h2>דוח שירות</h2>
-  <div>לקוח: <span id="pdf-client"></span></div>
-  <div>מספר: <span id="pdf-doc"></span></div>
-  <img id="pdf-sig" style="width:300px;height:100px;border-bottom:1px solid #000;">
+  <p>לקוח: <span id="p_client"></span></p>
+  <p>מסמך: <span id="p_doc"></span></p>
+  <img id="sigImg" style="width:300px;border-bottom:1px solid #000"/>
 </div>
 
 <script>
-const SCRIPT_URL = "YOUR_WEBAPP_URL";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec";
 
-let canvas = document.getElementById("sigCanvas");
-let ctx = canvas.getContext("2d");
-let signing=false;
-let points=[];
+/* ======================
+   חתימה נקייה (SVG-based)
+====================== */
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+let drawing=false;
+let strokes=[];
 
 function resize(){
-  const r = canvas.parentElement.getBoundingClientRect();
-  const dpr = window.devicePixelRatio||2;
+  const r=canvas.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
   canvas.width=r.width*dpr;
   canvas.height=140*dpr;
-  canvas.style.width=r.width+"px";
-  canvas.style.height="140px";
   ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 resize();
+window.onresize=resize;
 
 function pos(e){
   const r=canvas.getBoundingClientRect();
@@ -74,25 +78,25 @@ function pos(e){
 }
 
 canvas.onmousedown=e=>{
-  signing=true;
-  points.push([]);
+  drawing=true;
+  strokes.push([]);
   const p=pos(e);
-  points[points.length-1].push(p);
+  strokes[strokes.length-1].push(p);
   ctx.beginPath();
   ctx.moveTo(p.x,p.y);
-  document.getElementById("sigLabel").style.display="none";
+  document.getElementById("hint").style.display="none";
 };
 
 canvas.onmousemove=e=>{
-  if(!signing)return;
+  if(!drawing)return;
   const p=pos(e);
-  points[points.length-1].push(p);
+  strokes[strokes.length-1].push(p);
   ctx.lineTo(p.x,p.y);
   ctx.stroke();
 };
 
-canvas.onmouseup=()=>signing=false;
-canvas.onmouseleave=()=>signing=false;
+canvas.onmouseup=()=>drawing=false;
+canvas.onmouseleave=()=>drawing=false;
 
 canvas.ontouchstart=canvas.onmousedown;
 canvas.ontouchmove=canvas.onmousemove;
@@ -100,38 +104,42 @@ canvas.ontouchend=canvas.onmouseup;
 
 function clearSig(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  points=[];
-  document.getElementById("sigLabel").style.display="block";
+  strokes=[];
+  document.getElementById("hint").style.display="block";
 }
 
-function getSVG(){
-  let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">`;
-  points.forEach(s=>{
-    if(s.length<2)return;
-    let p=`M ${s[0].x} ${s[0].y}`;
-    for(let i=1;i<s.length;i++)p+=` L ${s[i].x} ${s[i].y}`;
-    svg+=`<path d="${p}" stroke="black" fill="none" stroke-width="2"/>`;
-  });
-  return svg+"</svg>";
+function sigToImage(){
+  const svg=`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+    ${strokes.map(s=>{
+      if(s.length<2)return "";
+      let d=`M ${s[0].x} ${s[0].y}`;
+      for(let i=1;i<s.length;i++) d+=` L ${s[i].x} ${s[i].y}`;
+      return `<path d="${d}" stroke="black" fill="none" stroke-width="2"/>`;
+    }).join("")}
+  </svg>`;
+  return "data:image/svg+xml;base64,"+btoa(svg);
 }
 
-async function makePDF(){
-  document.getElementById("pdf-client").innerText=document.getElementById("clientName").value;
-  document.getElementById("pdf-doc").innerText=document.getElementById("docNum").value;
+/* ======================
+   PDF
+====================== */
+async function buildPDF(){
+  document.getElementById("p_client").innerText=document.getElementById("clientName").value;
+  document.getElementById("p_doc").innerText=document.getElementById("docNum").value;
 
-  const svg=getSVG();
-  const blob=new Blob([svg],{type:"image/svg+xml"});
-  document.getElementById("pdf-sig").src=URL.createObjectURL(blob);
+  document.getElementById("sigImg").src=sigToImage();
 
-  await new Promise(r=>setTimeout(r,300));
+  await new Promise(r=>setTimeout(r,200));
 
-  const canvas=await html2canvas(document.getElementById("pdfTemplate"),{scale:3});
+  const el=document.getElementById("pdf");
+  const canvas=await html2canvas(el,{scale:2});
   const img=canvas.toDataURL("image/png");
 
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF("p","mm","a4");
 
-  const w=pdf.internal.pageSize.getWidth();
+  const w=210;
   const h=(canvas.height*w)/canvas.width;
 
   pdf.addImage(img,"PNG",0,0,w,h);
@@ -139,17 +147,22 @@ async function makePDF(){
   return pdf.output("blob");
 }
 
+/* ======================
+   Preview
+====================== */
 async function previewPDF(){
-  const blob=await makePDF();
+  const blob=await buildPDF();
   window.open(URL.createObjectURL(blob));
 }
 
-async function sendReport(){
-  const blob=await makePDF();
-
+/* ======================
+   Share (mobile sheet)
+====================== */
+async function sendPDF(){
+  const blob=await buildPDF();
   const file=new File([blob],"report.pdf",{type:"application/pdf"});
 
-  if(navigator.canShare?.({files:[file]})){
+  if(navigator.canShare && navigator.canShare({files:[file]})){
     await navigator.share({
       title:"דוח שירות",
       files:[file]
