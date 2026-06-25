@@ -499,7 +499,7 @@ function addRow(){
   const tbody=document.getElementById('tableBody');
   const tr=document.createElement('tr');
   const rid='r'+Date.now();tr.id=rid;
-  tr.innerHTML=`<td><input type="number" id="quantity" name="quantity" class="qty" placeholder="1" min="1" style="text-align:center;" oninput="updateTotals()"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" placeholder="0" style="text-align:center;font-size:13px;" oninput="updateTotals()"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove(); updateTotals();">✕</span></td>`;
+  tr.innerHTML=`<td><input type="number"  name="quantity" class="qty" placeholder="1" min="1" style="text-align:center;" oninput="updateTotals()"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" placeholder="0" style="text-align:center;font-size:13px;" oninput="updateTotals()"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove(); updateTotals();">✕</span></td>`;
   tbody.appendChild(tr);
 }
 
