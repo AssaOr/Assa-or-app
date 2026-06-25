@@ -7,52 +7,43 @@
 </head>
 <body>
 
+<div class="header">
+  <div class="header-title">תעודת משלוח / שרות</div>
+  <div class="doc-number" id="docNumber">טוען מספר...</div>
+</div>
+
+<div class="card">
+  <input type="hidden" id="docNum"> <div id="statusBox">מוכן לשליחה</div>
+  <button class="btn" onclick="sendReport()">📤 שלח דוח</button>
+</div>
+
 <script>
+// עדכן כאן את הכתובת שלך!
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec';
 
-// פונקציית עדכון מספר תעודה מהשרת
+// 1. פונקציית משיכת מספר (רק תצוגה)
 async function initDocNum() {
-  document.getElementById('docNumber').textContent = 'טוען מספר...';
+  document.getElementById('docNumber').textContent = 'טוען...';
   try {
-    // פנייה ל-GS לקבלת המספר האחרון
-    const res = await sheetsGet('getLastDocNum'); 
-    
+    const res = await sheetsGet('getLastDocNum');
     if (res && res.lastDocNum !== undefined) {
       const nextNum = parseInt(res.lastDocNum) + 1;
-      const formattedNum = String(nextNum).padStart(6, '0');
+      const formattedNum = 'S' + String(nextNum).padStart(5, '0');
       document.getElementById('docNumber').textContent = 'מס׳ ' + formattedNum;
       document.getElementById('docNum').value = formattedNum;
     }
   } catch(e) {
-    console.error("שגיאה במשיכת מספר:", e);
     document.getElementById('docNumber').textContent = 'שגיאת שרת';
   }
 }
 
-// פונקציית שליחה משודרגת
+// 2. פונקציית שליחה משודרגת
 async function sendReport() {
-  document.getElementById('statusBox').textContent = 'שולח...';
-  
-  // כאן הלוגיקה שלך לשליחת הנתונים (sheetsPost)
-  // ...
-  
-  // דוגמה: אחרי שהשרת מחזיר הצלחה:
-  alert('הדוח נשלח בהצלחה!');
-  
-  // כאן הקסם: רענון המספר מהשרת אחרי השליחה
-  await initDocNum(); 
-  
-  // ניקוי הטופס
-  document.getElementById('tableBody').innerHTML = '';
-  addRow(); addRow(); addRow();
-  document.getElementById('statusBox').textContent = 'מוכן לשליחה';
-}
+  const statusBox = document.getElementById('statusBox');
+  statusBox.textContent = 'שולח ומעדכן מספר...';
 
-// טעינה ראשונית
-document.addEventListener('DOMContentLoaded', () => {
-  initDocNum();
-  // ... שאר הפונקציות שלך
-});
-</script>
-</body>
-</html>
+  // הפקודה הקריטית: נעילה ועדכון מספר בשרת
+  const commitRes = await sheetsGet('commitDocNum');
+
+  if (commitRes && commitRes.ok) {
+    alert('הדוח נשלח בה
