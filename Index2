@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אסא-אור | דוח שירות</title>
+</head>
+<body>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWJP2CwPg6ipfpIaG57i37WsGmIxO3iwUP6-KU8e1tNEjggrmtDHQH6OKyb9L7lNSE/exec';
+
+// פונקציית עדכון מספר תעודה מהשרת
+async function initDocNum() {
+  document.getElementById('docNumber').textContent = 'טוען מספר...';
+  try {
+    // פנייה ל-GS לקבלת המספר האחרון
+    const res = await sheetsGet('getLastDocNum'); 
+    
+    if (res && res.lastDocNum !== undefined) {
+      const nextNum = parseInt(res.lastDocNum) + 1;
+      const formattedNum = String(nextNum).padStart(6, '0');
+      document.getElementById('docNumber').textContent = 'מס׳ ' + formattedNum;
+      document.getElementById('docNum').value = formattedNum;
+    }
+  } catch(e) {
+    console.error("שגיאה במשיכת מספר:", e);
+    document.getElementById('docNumber').textContent = 'שגיאת שרת';
+  }
+}
+
+// פונקציית שליחה משודרגת
+async function sendReport() {
+  document.getElementById('statusBox').textContent = 'שולח...';
+  
+  // כאן הלוגיקה שלך לשליחת הנתונים (sheetsPost)
+  // ...
+  
+  // דוגמה: אחרי שהשרת מחזיר הצלחה:
+  alert('הדוח נשלח בהצלחה!');
+  
+  // כאן הקסם: רענון המספר מהשרת אחרי השליחה
+  await initDocNum(); 
+  
+  // ניקוי הטופס
+  document.getElementById('tableBody').innerHTML = '';
+  addRow(); addRow(); addRow();
+  document.getElementById('statusBox').textContent = 'מוכן לשליחה';
+}
+
+// טעינה ראשונית
+document.addEventListener('DOMContentLoaded', () => {
+  initDocNum();
+  // ... שאר הפונקציות שלך
+});
+</script>
+</body>
+</html>
