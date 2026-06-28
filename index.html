@@ -540,17 +540,61 @@ addRow(); addRow(); addRow();
 function openTechSettings() {
   const currentName = localStorage.getItem('assaor_tech_name') || '';
   const currentOrigin = document.getElementById('originAddress').value || 'מושב לכיש';
-  
-  const name = prompt('הכנס שם טכנאי:', currentName);
+
+  const name = prompt('הכנס שם טכנאי:\n\n(להגדרות מנהל מתקדמות, הקלד: admin)', currentName);
   if (name === null) return;
+
+  if (name.trim().toLowerCase() === 'admin') {
+    openAdminSettings();
+    return;
+  }
+
   const origin = prompt('הכנס כתובת מוצא לחישוב ק"מ:', currentOrigin);
   if (origin === null) return;
-  
+
   localStorage.setItem('assaor_tech_name', name.trim());
   localStorage.setItem('assaor_tech_origin', origin.trim());
-  
+
   updateTechDisplay();
   alert('ההגדרות נשמרו בהצלחה!');
+}
+
+// ── הגדרות מנהל: איפוס מספר תעודה ──
+async function openAdminSettings() {
+  const pass = prompt('סיסמת מנהל:');
+  if (pass === null) return;
+
+  const yearInput = prompt('שנה (2 ספרות, השאר ריק לשנה הנוכחית):', String(new Date().getFullYear()).slice(-2));
+  if (yearInput === null) return;
+
+  const newStartInput = prompt('המספר הבא שיונפק יהיה הגבוה ב-1 מהמספר שתכניס כאן.\nלמשל: הכנס 125 כדי שהבא יהיה 126.', '125');
+  if (newStartInput === null) return;
+
+  const newStart = parseInt(newStartInput);
+  if (isNaN(newStart) || newStart < 0) {
+    alert('מספר לא תקין');
+    return;
+  }
+
+  document.getElementById('statusBox').textContent = 'מאפס מספר תעודה...';
+  try {
+    const res = await sheetsPost({
+      action: 'resetDocCounter',
+      adminPassword: pass,
+      newStart: newStart,
+      year: yearInput.trim() || String(new Date().getFullYear()).slice(-2)
+    });
+    if (res && res.status === 'reset') {
+      alert('✅ אופס בהצלחה!\nהתעודה הבאה תהיה: ' + res.nextWillBe);
+      document.getElementById('statusBox').textContent = 'מספר תעודה אופס';
+    } else {
+      alert('❌ שגיאה: ' + (res?.error || 'לא ידוע'));
+      document.getElementById('statusBox').textContent = 'מוכן לשליחה';
+    }
+  } catch (e) {
+    alert('❌ שגיאת חיבור');
+    document.getElementById('statusBox').textContent = 'מוכן לשליחה';
+  }
 }
 
 function updateTechDisplay() {
@@ -738,7 +782,8 @@ async function sendReport() {
     if (docRes && docRes.docNum) {
       currentDocNum = docRes.docNum;
     } else {
-      currentDocNum = 'L' + Date.now().toString().slice(-6); // fallback מקומי אם אין רשת
+      const yy = String(new Date().getFullYear()).slice(-2);
+      currentDocNum = yy + '-L' + Date.now().toString().slice(-4); // fallback מקומי אם אין רשת
     }
     document.getElementById('docNumber').textContent = 'מס׳ ' + currentDocNum;
     document.getElementById('docNum').value = currentDocNum;
@@ -746,6 +791,8 @@ async function sendReport() {
     document.getElementById('statusBox').textContent = 'בונה PDF...';
     const pdf = await buildPDF();
     const blob = pdf.output('blob');
+    const filename = `assaor_${currentDocNum}.pdf`;
+    const file = new File([blob], filename, { type: 'application/pdf' });
 
     // שלב 2: זהה האם הלקוח חדש
     const clientVal = document.getElementById('clientName').value.trim();
@@ -768,7 +815,26 @@ async function sendReport() {
       if (q||d) items.push([q+'x', d, p?'₪'+p:''].filter(Boolean).join(' '));
     });
 
-    // שלב 5: שמור את הדוח בגיליון (כולל לקוח חדש + חלקים חדשים)
+    // שלב 5: פתח את תיבת השיתוף *מיד* — לפני שמירה לגיליון —
+    // כדי לא לאבד את הרשאת המשתמש (user-activation) שדרושה ל-navigator.share
+    let shared = false;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'דוח שירות', text: 'דוח שירות אסא-אור מס\' ' + currentDocNum });
+        shared = true;
+      } catch (err) {
+        console.log('Share cancelled or failed', err);
+      }
+    }
+    if (!shared) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+    }
+
+    // שלב 6: שמור את הדוח בגיליון (כולל לקוח חדש + חלקים חדשים) — ברקע, אחרי השיתוף
     document.getElementById('statusBox').textContent = 'שומר בגיליון...';
     await sheetsPost({
       action: 'saveReport',
@@ -792,29 +858,9 @@ async function sendReport() {
 
     document.getElementById('statusBox').textContent = 'נשלח בהצלחה — מס\' ' + currentDocNum;
 
-    const filename = `assaor_${currentDocNum}.pdf`;
-    const file = new File([blob], filename, { type: 'application/pdf' });
-
     // רענן רשימות לקוחות/חלקים לקראת הדוח הבא
     loadClients();
     loadParts();
-
-    // ניסיון לפתוח Share Sheet בנייד
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: 'דוח שירות', text: 'דוח שירות אסא-אור מס\' ' + currentDocNum });
-        return;
-      } catch (err) {
-        console.log('Share cancelled or failed', err);
-      }
-    }
-
-    // fallback: הורדה
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
 
   } catch (e) {
     document.getElementById('statusBox').textContent = '❌ שגיאה: ' + e.message;
