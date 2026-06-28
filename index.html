@@ -143,35 +143,35 @@
 <div class="card">
   <div class="card-title">פרטי קריאה</div>
   <div class="field-row">
-    <div class="field"><label for="dateField">תאריך</label><input type="date" id="dateField"></div>
-    <div class="field"><label for="docNum">מס׳ מסמך</label><input type="text" id="docNum" placeholder="יונפק בשליחה" readonly></div>
+    <div class="field"><label>תאריך</label><input type="date" id="dateField"></div>
+    <div class="field"><label>מס׳ מסמך</label><input type="text" id="docNum" placeholder="יונפק בשליחה" readonly></div>
   </div>
   <div class="field-row">
-    <div class="field"><label for="startTime">שעת התחלה</label><input type="time" id="startTime"></div>
-    <div class="field"><label for="endTime">שעת סיום</label><input type="time" id="endTime"></div>
-    <div class="field computed"><label for="totalHours">סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00" readonly></div>
+    <div class="field"><label>שעת התחלה</label><input type="time" id="startTime"></div>
+    <div class="field"><label>שעת סיום</label><input type="time" id="endTime"></div>
+    <div class="field computed"><label>סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00" readonly></div>
   </div>
   <div class="field-row">
     <div class="field">
-      <label for="clientName">לכבוד (לקוח)</label>
+      <label>לכבוד (לקוח)</label>
       <input type="text" id="clientName" placeholder="הקלד שם לקוח..." autocomplete="off" oninput="filterClients(this.value)" onfocus="filterClients(this.value)">
       <div class="autocomplete-list" id="clientDropdown" style="display:none;"></div>
       <div class="sync-status"><div class="sync-dot" id="clientSyncDot"></div><span id="clientSyncText">טוען לקוחות...</span></div>
     </div>
   </div>
   <div class="field-row">
-    <div class="field"><label for="contactName">איש קשר / המזמין</label><input type="text" id="contactName" placeholder="שם איש קשר"></div>
-    <div class="field"><label for="contactPhone">טלפון</label><input type="tel" id="contactPhone" placeholder="050-0000000"></div>
+    <div class="field"><label>איש קשר / המזמין</label><input type="text" id="contactName" placeholder="שם איש קשר"></div>
+    <div class="field"><label>טלפון</label><input type="tel" id="contactPhone" placeholder="050-0000000"></div>
   </div>
   
   <input type="hidden" id="originAddress" value="מושב לכיש">
   <div class="field-row" style="align-items:flex-end;">
     <div class="field" style="flex:2;">
-      <label for="clientAddress">כתובת לקוח</label>
+      <label>כתובת לקוח</label>
       <input type="text" id="clientAddress" placeholder="עיר / כתובת לקוח" oninput="onAddressChange()">
     </div>
     <div class="field computed-km" style="flex:1;">
-      <label for="kmField">ק"מ</label>
+      <label>ק"מ</label>
       <input type="number" id="kmField" placeholder="ידנית / אוטו'">
     </div>
     <button onclick="calcKmFromAddresses()" style="background:var(--pink);color:white;border:none;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-bottom:1px;">חשב ק"מ</button>
@@ -200,7 +200,7 @@
   <div class="card-title">סיכום</div>
   <div class="field-row" style="align-items:flex-end;">
     <div class="field">
-      <label for="vatRate">מע"מ</label>
+      <label>מע"מ</label>
       <select id="vatRate" style="border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;background:var(--gray);font-family:inherit;color:var(--text);">
         <option value="0.18">18%</option>
         <option value="0.17">17%</option>
@@ -208,16 +208,16 @@
       </select>
     </div>
     <div class="field computed">
-      <label for="subtotalDisplay">סה"כ לפני מע"מ</label>
+      <label>סה"כ לפני מע"מ</label>
       <input type="text" id="subtotalDisplay" readonly placeholder="0 ₪">
     </div>
     <div class="field" style="background:#1a237e;border-radius:8px;padding:10px 12px;">
-      <label for="grandTotalDisplay" style="color:#aaa;">סה"כ לתשלום</label>
+      <label style="color:#aaa;">סה"כ לתשלום</label>
       <input type="text" id="grandTotalDisplay" readonly placeholder="0 ₪" style="background:transparent;border:none;color:white;font-weight:700;font-size:16px;padding:0;">
     </div>
   </div>
   <div class="field" style="margin-top:12px;">
-    <label for="remarks">הערות</label>
+    <label>הערות</label>
     <textarea id="remarks" rows="2" placeholder="הערות נוספות..." style="resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--gray);direction:rtl;width:100%;"></textarea>
   </div>
 </div>
@@ -253,50 +253,15 @@
     </div>
   </div>
   <div class="pdf-meta">
-    <div class="pdf-meta-item">
-  <label for="pdf-date">תאריך</label>
-  <span id="pdf-date"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-start">שעת התחלה</label>
-  <span id="pdf-start"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-end">שעת סיום</label>
-  <span id="pdf-end"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-client">לכבוד</label>
-  <span id="pdf-client"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-contact">איש קשר</label>
-  <span id="pdf-contact"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-phone">טל׳</label>
-  <span id="pdf-phone"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-address">כתובת</label>
-  <span id="pdf-address"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-hours">שעות עבודה</label>
-  <span id="pdf-hours"></span>
-</div>
-
-<div class="pdf-meta-item">
-  <label for="pdf-km">ק"מ נסיעה</label>
-  <span id="pdf-km"></span>
-</div>
+    <div class="pdf-meta-item"><label>תאריך</label><span id="pdf-date"></span></div>
+    <div class="pdf-meta-item"><label>שעת התחלה</label><span id="pdf-start"></span></div>
+    <div class="pdf-meta-item"><label>שעת סיום</label><span id="pdf-end"></span></div>
+    <div class="pdf-meta-item"><label>לכבוד</label><span id="pdf-client"></span></div>
+    <div class="pdf-meta-item"><label>איש קשר</label><span id="pdf-contact"></span></div>
+    <div class="pdf-meta-item"><label>טל׳</label><span id="pdf-phone"></span></div>
+    <div class="pdf-meta-item"><label>כתובת</label><span id="pdf-address"></span></div>
+    <div class="pdf-meta-item"><label>שעות עבודה</label><span id="pdf-hours"></span></div>
+    <div class="pdf-meta-item"><label>ק"מ נסיעה</label><span id="pdf-km"></span></div>
   </div>
   <table class="pdf-table">
     <thead><tr><th style="width:55px">כמות</th><th>תיאור עבודה / חלק</th><th style="width:70px">מחיר ₪</th></tr></thead>
@@ -534,7 +499,7 @@ function addRow(){
   const tbody=document.getElementById('tableBody');
   const tr=document.createElement('tr');
   const rid='r'+Date.now();tr.id=rid;
-  tr.innerHTML=`<td><input type="number"  name="quantity" class="qty" placeholder="1" min="1" style="text-align:center;" oninput="updateTotals()"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" name="description" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" name="howmuch" placeholder="0" style="text-align:center;font-size:13px;" oninput="updateTotals()"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove(); updateTotals();">✕</span></td>`;
+  tr.innerHTML=`<td><input type="number" class="qty" placeholder="1" min="1" style="text-align:center;" oninput="updateTotals()"></td><td class="desc-col" style="position:relative;"><input type="text" class="desc" placeholder="תיאור / חלק..." autocomplete="off" oninput="filterParts(this,'${rid}')" onfocus="filterParts(this,'${rid}')"><div class="part-dropdown" id="pd_${rid}" style="display:none;"></div></td><td><input type="number" class="price" placeholder="0" style="text-align:center;font-size:13px;" oninput="updateTotals()"></td><td style="width:34px;text-align:center;"><span class="del-row" onclick="this.closest('tr').remove(); updateTotals();">✕</span></td>`;
   tbody.appendChild(tr);
 }
 
