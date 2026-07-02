@@ -1,25 +1,8 @@
-7<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    #splashScreen {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    #splashScreen img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
-  </style>meta charset="UTF-8">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>אסא-אור | דוח שירות</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -136,9 +119,14 @@
     justify-content: center;
   }
   #splashScreen img {
-    max-width: 70vw;
-    max-height: 70vh;
+    max-width: 65vw;
+    max-height: 65vh;
     object-fit: contain;
+    animation: splashPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes splashPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.06); opacity: 0.85; }
   }
 </style>
 
@@ -154,7 +142,7 @@
 <body>
 
 <div id="splashScreen">
-  <img src="my-splash.gif" alt="טוען...">
+  <img src="splash-logo.svg" alt="טוען...">
 </div>
 
 <div class="app-header">
@@ -180,7 +168,7 @@
   <div class="field-row">
     <div class="field"><label>שעת התחלה</label><input type="time" id="startTime"></div>
     <div class="field"><label>שעת סיום</label><input type="time" id="endTime"></div>
-    <div class="field computed"><label>סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00" readonly></div>
+    <div class="field computed"><label>סה"כ שעות</label><input type="text" id="totalHours" placeholder="0:00"></div>
   </div>
   <div class="field-row">
     <div class="field">
@@ -203,20 +191,24 @@
     </div>
     <div class="field computed-km" style="flex:1;">
       <label>ק"מ</label>
-      <input type="number" id="kmField" placeholder="ידנית / אוטו'">
+      <input type="number" id="kmField" placeholder="הכנס ידנית או לחץ חשב">
     </div>
     <button onclick="calcKmFromAddresses()" style="background:var(--pink);color:white;border:none;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-bottom:1px;">חשב ק"מ</button>
   </div>
   <div class="gps-badge"><div class="gps-dot" id="gpsDot"></div><span id="gpsStatus">לחץ "חשב ק"מ" לחישוב אוטומטי</span></div>
 </div>
 
+<!-- תיאור עבודה + חלקים -->
 <div class="card">
-  <div class="card-title">פירוט עבודות / חלקים</div>
+  <div class="card-title">תיאור העבודה</div>
+  <textarea id="workDescription" rows="4" placeholder="תיאור העבודה שבוצעה..." style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--gray);direction:rtl;margin-bottom:16px;"></textarea>
+
+  <div class="card-title" style="margin-top:4px;">פירוט חלקים</div>
   <table class="service-table" id="serviceTable">
     <thead>
       <tr>
         <th style="width:50px">כמות</th>
-        <th>תיאור עבודה / חלק</th>
+        <th>תיאור חלק</th>
         <th style="width:70px">מחיר ₪</th>
         <th style="width:34px"></th>
       </tr>
@@ -294,10 +286,28 @@
     <div class="pdf-meta-item"><label>שעות עבודה</label><span id="pdf-hours"></span></div>
     <div class="pdf-meta-item"><label>ק"מ נסיעה</label><span id="pdf-km"></span></div>
   </div>
-  <table class="pdf-table">
-    <thead><tr><th style="width:55px">כמות</th><th>תיאור עבודה / חלק</th><th style="width:70px">מחיר ₪</th></tr></thead>
-    <tbody id="pdf-tableBody"></tbody>
-  </table>
+
+  <!-- תיאור העבודה -->
+  <div id="pdf-desc-block" style="margin-top:14px;">
+    <div style="background:#1a237e;color:white;padding:7px 10px;font-size:12px;font-weight:700;border-radius:4px 4px 0 0;">תיאור העבודה</div>
+    <div style="border:1px solid #1a237e;border-top:none;border-radius:0 0 4px 4px;padding:10px;font-size:12px;color:#333;min-height:48px;line-height:1.7;">
+      <span id="pdf-workdesc" style="white-space:pre-wrap;"></span>
+    </div>
+  </div>
+
+  <!-- פירוט חלקים -->
+  <div style="margin-top:14px;">
+    <div style="background:#1a237e;color:white;padding:7px 10px;font-size:12px;font-weight:700;border-radius:4px 4px 0 0;">פירוט חלקים</div>
+    <table class="pdf-table" style="margin:0;border-radius:0 0 4px 4px;">
+      <thead><tr>
+        <th style="width:55px;border-radius:0;">כמות</th>
+        <th style="border-radius:0;">תיאור חלק</th>
+        <th style="width:70px;border-radius:0;">מחיר ₪</th>
+      </tr></thead>
+      <tbody id="pdf-tableBody"></tbody>
+    </table>
+  </div>
+
   <div style="margin-top:10px;font-size:12px;color:#555;" id="pdf-remarks-block"><strong>הערות:</strong> <span id="pdf-remarks"></span></div>
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;gap:20px;">
     <div style="text-align:center;flex:1;max-width:320px;">
@@ -565,7 +575,7 @@ function filterParts(input,rid){
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.desc-col'))document.querySelectorAll('.part-dropdown').forEach(d=>d.style.display='none');});
 // יצירת שורות ראשוניות בטבלה
-addRow(); addRow(); addRow();
+addRow(); // שורה אחת בהתחלה — לחץ "+ הוסף שורה" להוספת עוד
 
 // ==========================================
 // מערכת ניהול והגדרות טכנאי
@@ -727,6 +737,8 @@ function fillPdfFields() {
   const remarksVal = document.getElementById('remarks').value;
   document.getElementById('pdf-remarks').textContent = remarksVal;
   document.getElementById('pdf-remarks-block').style.display = remarksVal ? 'block' : 'none';
+  const descVal = document.getElementById('workDescription').value;
+  document.getElementById('pdf-workdesc').textContent = descVal;
 
   // טבלה
   const body = document.getElementById('pdf-tableBody');
@@ -907,6 +919,7 @@ async function sendReport() {
       km: document.getElementById('kmField').value,
       items: items.join(' | '),
       remarks: document.getElementById('remarks').value,
+      workDescription: document.getElementById('workDescription').value,
       isNewClient: isNewClient,
       newParts: newPartsStr
     });
