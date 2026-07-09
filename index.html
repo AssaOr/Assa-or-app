@@ -119,14 +119,10 @@
     justify-content: center;
   }
   #splashScreen img {
-    max-width: 65vw;
-    max-height: 65vh;
+    width: 100vw;
+    height: auto;
     object-fit: contain;
-    animation: splashPulse 1.6s ease-in-out infinite;
-  }
-  @keyframes splashPulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50%      { transform: scale(1.06); opacity: 0.85; }
+    display: block;
   }
 </style>
 
@@ -142,7 +138,7 @@
 <body>
 
 <div id="splashScreen">
-  <img src="splash-logo.svg" alt="טוען...">
+  <img src="my-splash.gif" alt="טוען...">
 </div>
 
 <div class="app-header">
